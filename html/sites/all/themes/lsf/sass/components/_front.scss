@@ -1,0 +1,47 @@
+.front {
+
+	#block-views-applications-block {
+		h2.block__title {
+			text-align: center;
+		}
+
+		.view-content {
+			.views-row {
+				width: 33%;
+				display: inline-block;
+				padding: 0 .5em;
+				vertical-align: top;
+
+				.views-field-title {
+					text-align: left;
+					background: #885331;
+					width: 100%;
+					border-radius: .25em;
+					padding: .25em;
+
+					h3 {
+						margin: 0;
+					}
+
+					a {
+						text-decoration: none;
+						color: #FFF;
+						width: 100%;
+						display: block;
+						padding: .5em 0;
+						padding-left: .5em;
+						
+					}
+				}
+
+				.views-field-title:hover {
+					background: $main-color;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+
+
+
+}

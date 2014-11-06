@@ -1,0 +1,119 @@
+.header-wrapper {
+	background: $main-color;
+	color: $accent-light;
+	width: 100%;
+	padding-top:1em;
+
+	font-family: "Oswald", Arial, sans-serif;
+
+	header {
+
+		a {
+			color: #9d8930;
+		}
+
+		.l-branding {
+			max-width: 1170px;
+			margin: 0 auto;
+			display: block;
+			vertical-align: middle;
+
+			.site-logo {
+				display: inline-block;
+				vertical-align: middle;
+
+				img {
+					width: 80px;
+					height: auto;
+					padding:.25em;
+					background: $accent-light;
+					border-radius: .25em;
+					border: thin solid $main-color;
+				}
+			}
+
+			.name-slogan {
+				display: inline-block;
+				vertical-align: middle;
+				margin-left: .5em;
+
+				a {
+					text-transform: uppercase;
+					text-decoration: none;
+					font-weight: normal;
+				}
+
+				.site-slogan, .site-name {
+					font-weight: normal;
+					margin:0;
+				}
+
+				.site-slogan {
+					margin-top: -.5em;
+				}
+
+			}
+		}
+
+		.l-header {
+			max-width: 1170px;
+			margin: 0 auto;
+			display: block;
+			min-height: 75px;
+			background: #c27d30;
+		}
+
+	}
+}
+
+.nav-wrapper {
+	background: #c27d30;
+	color: white;
+	width: 100%;
+	margin-top: -22px;
+
+	font-family: "Oswald", Arial, sans-serif;
+
+	.l-region--navigation {
+		max-width:1170px;
+		margin: 0 auto;
+		display: block;
+
+		ul.menu {
+			padding:.5em 0;
+			margin:0;
+			position: relative;
+			margin-left:75px;
+			vertical-align: middle;
+
+			li {
+				list-style-image: none;
+				display: inline-block;
+				vertical-align: middle;
+				padding:0 2em;
+
+				.first {
+					padding-left: 0;
+				}
+
+				a {
+					color: #FFFFFF;
+					
+					font-weight: normal;
+					font-size: 20px;
+					text-shadow: none;
+					text-align: center;
+					text-transform: uppercase;
+					white-space: nowrap;
+					text-decoration: none;
+				}
+			}
+		}
+	}
+}
+
+
+.l-main {
+	max-width: 1170px;
+	margin: 0 auto;
+}
