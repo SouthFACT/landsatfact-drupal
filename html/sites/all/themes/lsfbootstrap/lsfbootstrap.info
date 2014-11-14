@@ -24,13 +24,8 @@ regions[page_bottom]    = 'Page bottom'
 ;; Stylesheets
 ;;;;;;;;;;;;;;;;;;;;;
 
-stylesheets[all][] = css/style.css
+;stylesheets[all][] = css/style.css
 stylesheets[all][] = less/style.less
-stylesheets[all][] = less/bootstrap.less
-stylesheets[all][] = less/content.less
-stylesheets[all][] = less/header.less
-stylesheets[all][] = less/overrides.less
-stylesheets[all][] = less/variables.less
 
 
 ; For information on choosing the desired method, please read the Drupal

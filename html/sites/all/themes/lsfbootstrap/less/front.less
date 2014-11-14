@@ -1,0 +1,99 @@
+.front {
+
+	#block-views-applications-block {
+		h2.block-title {
+			text-align: center;
+		}
+
+		.view-content {
+			text-align: center;
+
+			.views-row {
+				width: 33%;
+				display: inline-block;
+				padding: 0 .5em;
+				vertical-align: top;
+				margin-bottom: 1em;
+
+				.views-field-title {
+					text-align: left;
+					background: @secondary-accent;
+					width: 100%;
+					border-radius: .25em;
+					padding: .25em;
+
+					h3 {
+						margin: 0;
+					}
+
+					a {
+						text-decoration: none;
+						color: #FFF;
+						width: 100%;
+						display: block;
+						padding: .5em 0;
+						padding-left: .5em;
+						
+					}
+				}
+
+				.views-field-body {
+					margin-top: 1em;
+				}
+
+
+				.views-field-title:hover {
+					background: @main-color;
+					cursor: pointer;
+				}
+			}
+
+			@media (max-width: 991px) {
+				.views-row {
+					width: 48%;
+
+					.views-field-title {
+						text-align: left;
+					}
+
+					.views-field-body {
+						text-align: left;
+					}
+				}
+			}
+
+			@media (max-width: 768px) {
+				.views-row {
+					width: 100%;
+
+					.views-field-title {
+						background:transparent;
+						text-align: left;
+
+						h3 {
+							a {
+								color: @secondary-accent;
+							}
+						}
+					}
+
+					.views-field-title:hover {
+						background: transparent;
+						cursor: pointer;
+
+						h3 {
+							a {
+								color: @main-color;
+							}
+						}
+					}
+
+					.views-field-body {
+						text-align: left;
+					}
+				}
+			}
+		}
+	}
+
+}
