@@ -1,0 +1,76 @@
+<?php
+
+// Get all defined vars
+// dpm(get_defined_vars());
+
+//Function to insert new LSF user when created
+function lsf_subscription_user_insert(&$edit, $account, $category) {
+	// This part needed to make connections by specific functions
+	// Should be done in a more global way during code revisit
+	$config_info = parse_ini_file("lsf_config.ini",true);
+	$database = $config_info["pgsql_connection"]["database"];
+	$username = $config_info["pgsql_connection"]["username"];
+	$password = $config_info["pgsql_connection"]["password"];
+	$host = $config_info["pgsql_connection"]["host"];
+	$port = $config_info["pgsql_connection"]["port"];
+	$driver = $config_info["pgsql_connection"]["driver"];
+	$lsf_database = array(
+	  'database' => $database,
+	  'username' => $username,  
+	  'password' => $password,  
+	  'host' => $host,  
+	  'port' => $port,
+	  'driver' => $driver,  
+	);
+	Database::addConnectionInfo($database, 'default', $lsf_database);
+	db_set_active($database);	
+	//-----------------------------------------------------------
+	
+	db_insert('users')->fields(array(
+		'user_name' => $account->name,
+	))->execute();
+	db_set_active();
+}
+
+//Function to inser new user AOI when created
+function area_of_interest_form_alter(&$form, &$form_state, $form_id) {
+  dsm($form_id);  // print form ID to messages
+  dsm($form);  // pretty print array using Krumo to messages
+}
+
+
+// function lsf_subscription_init() {
+	// // Test the methdology for connection:
+	
+	// // This part needed to make connections by specific functions
+	// // Should be done in a more global way during code revisit
+	// $config_info = parse_ini_file("lsf_config.ini",true);
+	// $database = $config_info["pgsql_connection"]["database"];
+	// $username = $config_info["pgsql_connection"]["username"];
+	// $password = $config_info["pgsql_connection"]["password"];
+	// $host = $config_info["pgsql_connection"]["host"];
+	// $port = $config_info["pgsql_connection"]["port"];
+	// $driver = $config_info["pgsql_connection"]["driver"];
+	// $lsf_database = array(
+	  // 'database' => $database,
+	  // 'username' => $username,  
+	  // 'password' => $password,  
+	  // 'host' => $host,  
+	  // 'port' => $port,
+	  // 'driver' => $driver,  
+	// );
+	// Database::addConnectionInfo($database, 'default', $lsf_database);
+	// db_set_active($database);	
+	// //-----------------------------------------------------------
+	
+	// // //Get the currently active DB driver
+	// drupal_set_message(db_driver());	
+	// $result = db_query("select count(*) from landsat_metadata;");
+	// foreach ($result as $record) {
+	  // dpm($record);
+	// }		
+	
+	// // Be sure to set the db back to the default one
+	// db_set_active();
+	// // drupal_set_message(t('LSF connection variables set'));
+// }

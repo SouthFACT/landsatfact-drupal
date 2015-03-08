@@ -1,6 +1,9 @@
 # Ignore configuration files that may contain sensitive information.
 sites/*/settings*.php
 
+#Ignore lsf DB connection info
+sites/all/modules/lsf_subscription/*.ini
+
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private
