@@ -1,6 +1,8 @@
 # Ignore configuration files that may contain sensitive information.
 sites/*/settings*.php
 
+*.zip
+
 #Ignore lsf DB connection info
 sites/all/modules/lsf_subscription/*.ini
 

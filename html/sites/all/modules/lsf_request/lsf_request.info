@@ -1,0 +1,4 @@
+name = LandSatFACT Request
+description = Handles custom user requests for data on the LandSatFACT site
+package = LandSatFACT
+core = 7.x

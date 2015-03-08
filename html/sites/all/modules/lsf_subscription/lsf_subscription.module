@@ -32,7 +32,7 @@ function lsf_subscription_user_insert(&$edit, $account, $category) {
 	db_set_active();
 }
 
-//Function to inser new user AOI when created
+//Function to insert new user AOI when created
 function area_of_interest_form_alter(&$form, &$form_state, $form_id) {
   dsm($form_id);  // print form ID to messages
   dsm($form);  // pretty print array using Krumo to messages
