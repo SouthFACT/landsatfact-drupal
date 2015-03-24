@@ -1,99 +1,171 @@
-.front {
+.field-name-front-page-slideshow {
+    position: relative;
+    margin-bottom: 3em;
+}
 
-	#block-views-applications-block {
-		h2.block-title {
-			text-align: center;
-		}
+.views-slideshow-controls-top {
+    max-width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-		.view-content {
-			text-align: center;
+.views-slideshow-controls-text {
+    width: 100%;
+    max-width: 940px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
 
-			.views-row {
-				width: 33%;
-				display: inline-block;
-				padding: 0 .5em;
-				vertical-align: top;
-				margin-bottom: 1em;
+    span {
+        position: absolute;
+        top: 45%;
+        color: #fff;
+    }
 
-				.views-field-title {
-					text-align: left;
-					background: @secondary-accent;
-					width: 100%;
-					border-radius: .25em;
-					padding: .25em;
+    a {
+        color: #fff;
+    }
+}
 
-					h3 {
-						margin: 0;
-					}
+.views-slideshow-controls-text-previous {
+    left: 10px;
+}
 
-					a {
-						text-decoration: none;
-						color: #FFF;
-						width: 100%;
-						display: block;
-						padding: .5em 0;
-						padding-left: .5em;
-						
-					}
-				}
+.views-slideshow-controls-text-next {
+    right: 10px;
+}
 
-				.views-field-body {
-					margin-top: 1em;
-				}
+.views-slideshow-controls-text-pause {
+    display: none;
+}
 
+.views-slideshow-cycle-main-frame, .views-slideshow-cycle-main-frame-row {
+    width: 100% !important;
+    height: auto !important;
+}
 
-				.views-field-title:hover {
-					background: @main-color;
-					cursor: pointer;
-				}
-			}
+.views-slideshow-cycle-main-frame {
+    text-align: center;
+}
 
-			@media (max-width: 991px) {
-				.views-row {
-					width: 48%;
+.views-slideshow-cycle-main-frame-row {
+    position: relative !important;
+    display: list-item !important;
+    list-style: none;
+    float: left;
+    margin-right: -100%;
+    opacity: 0;
 
-					.views-field-title {
-						text-align: left;
-					}
+    &:first-child {
+        opacity: 1;
+    }
 
-					.views-field-body {
-						text-align: left;
-					}
-				}
-			}
+    .field-name-body {
+	width: 100%;
+        max-width: 940px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 20px;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: @font-size-large;
+        color: #fff;
+	background-color: #000;
+	background-color: rgba(0, 0, 0, .75);
+        text-align: left;
+    }
+}
 
-			@media (max-width: 768px) {
-				.views-row {
-					width: 100%;
+#block-views-applications-block {
+    h2.block-title {
+        text-align: center;
+	margin-bottom: 15px;
+    }
 
-					.views-field-title {
-						background:transparent;
-						text-align: left;
+    .view-content {
+        text-align: center;
+    }
 
-						h3 {
-							a {
-								color: @secondary-accent;
-							}
-						}
-					}
+    .views-row {
+        width: 33%;
+        display: inline-block;
+        padding: 0 .5em;
+        vertical-align: top;
+        margin-bottom: 1em;
+    }
 
-					.views-field-title:hover {
-						background: transparent;
-						cursor: pointer;
+    .views-field-title {
+        text-align: left;
+        background: @secondary-accent;
+        width: 100%;
+        border-radius: .25em;
+        padding: .25em;
 
-						h3 {
-							a {
-								color: @main-color;
-							}
-						}
-					}
+        h3 {
+            margin: 0;
+        }
 
-					.views-field-body {
-						text-align: left;
-					}
-				}
-			}
-		}
-	}
+        a {
+            text-decoration: none;
+            color: #fff;
+            width: 100%;
+            display: block;
+            padding: .5em 0;
+            padding-left: .5em;
+         }
+    }
 
+    .views-field-body {
+        margin-top: 1em;
+    }
+
+    .views-field-title:hover {
+        background: @main-color;
+        cursor: pointer;
+    }
+
+    @media (max-width: 991px) {
+        .views-row {
+            width: 48%;
+        }
+
+        .views-field-title {
+            text-align: left;
+        }
+
+        .views-field-body {
+            text-align: left;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .views-row {
+            width: 100%;
+        }
+
+        .views-field-title {
+            background:transparent;
+            text-align: left;
+
+            a {
+                color: @secondary-accent;
+            }
+
+            &:hover {
+                background: transparent;
+                cursor: pointer;
+
+                a {
+                    color: @main-color;
+                }
+            }
+        }
+
+        .views-field-body {
+            text-align: left;
+        }
+    }
 }

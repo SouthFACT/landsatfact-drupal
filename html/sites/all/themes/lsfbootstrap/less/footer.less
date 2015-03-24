@@ -1,1 +1,55 @@
 // Insert your styling here.
+.footer {
+    h2 {
+        margin-top: 0;
+        margin-bottom: 1em;
+        font-size: @font-size-base;
+        font-weight: bold;
+    }
+}
+
+.region-sub-footer {
+    background: url("../images/footermesh.png");
+    padding-top: 35px;
+    padding-bottom: 35px;
+    text-shadow: 1px 1px 1px @gray-darker;
+}
+
+.region-footer {
+    padding-top: 10px;
+    padding-bottom: 12px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-top: 1px solid @gray;
+    color: @gray-darker;
+    background-color: @brand-copyright;
+    font-size: @font-size-small;
+    text-shadow: 1px 1px 1px @gray;
+
+    p {
+        float: left;
+	margin-bottom: 0;
+    }
+
+    ul {
+        float: right;
+        list-style: none;
+	margin-bottom: 0;
+    }
+
+    li {
+        display: inline-block;
+
+        &:first-child {
+            margin-right: 5px;
+        }
+    }
+
+    a {
+        color: @gray-darker;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+}
