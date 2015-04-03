@@ -29,9 +29,6 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 	// after form values have been copied to the form state's node object, but before the node is 
 	// saved or previewed.   
 	
-	// dsm($node);  // print form ID to messages
-	// dsm($form_state);  // print form ID to messages
-
 	$select_type = $node->field_area_type['und'][0]['value'];
 	// drupal_set_message("select_type: " . $select_type);
 	
@@ -57,6 +54,10 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 			break;
 	}	
 }
+
+function insert_new_aoi_by_shape($node, $form_state) {
+	dsm(file_load($node->field_area_shapefile['und']['0']['fid']));
+}	
 
 
 function insert_new_aoi_by_county($node, $form_state) {
@@ -108,13 +109,6 @@ function insert_new_aoi_by_county($node, $form_state) {
 	foreach ($result as $record) {
 	  $county_bbox[] = $record;
 	}
-	// dsm($county_bbox);
-	// drupal_set_message($county_bbox[0]->bbox);
-
-	// $aoi_type = 'CR';
-	// if (strpos($node,'subscription') !== false) {
-		// $aoi_type = 'SS';
-	// }
 	
 	// For each quad_id insert into user_aoi:
 	foreach ($quad_ids as $key => $value) {
@@ -138,53 +132,6 @@ function insert_new_aoi_by_county($node, $form_state) {
 	db_set_active();
 }	
 
-function insert_new_aoi_by_map($node, $form, &$form_state) {
+function insert_new_aoi_by_map($node, $form_state) {
 	
 }	
-
-function insert_new_aoi_by_shape($node, $form, &$form_state) {
-	
-}	
-
-
-
-
-
-
-// //Function to insert new user AOI when created
-// function lsf_subscription_form_alter(&$form, &$form_state, $form_id) {
-  // dsm($form_id);  // print form ID to messages
-  // dsm($form);  // pretty print array using Krumo to messages
-// }
-
-//Function to insert new LSF user when created
-//3/13: This function is no longer needed as User info is going
-//to be kept soely on the Drupal side of things.
-// function lsf_subscription_user_insert(&$edit, $account, $category) {
-	// // This part needed to make connections by specific functions
-	// // Should be done in a more global way during code revisit
-	// $config_info = parse_ini_file("lsf_config.ini",true);
-	// $database = $config_info["pgsql_connection"]["database"];
-	// $username = $config_info["pgsql_connection"]["username"];
-	// $password = $config_info["pgsql_connection"]["password"];
-	// $host = $config_info["pgsql_connection"]["host"];
-	// $port = $config_info["pgsql_connection"]["port"];
-	// $driver = $config_info["pgsql_connection"]["driver"];
-	// $lsf_database = array(
-	  // 'database' => $database,
-	  // 'username' => $username,  
-	  // 'password' => $password,  
-	  // 'host' => $host,  
-	  // 'port' => $port,
-	  // 'driver' => $driver,  
-	// );
-	// Database::addConnectionInfo($database, 'default', $lsf_database);
-	// db_set_active($database);	
-	// //-----------------------------------------------------------
-	// db_insert('users')->fields(array(
-		// 'user_name' => $account->name,
-	// ))->execute();
-	// db_set_active();
-// }
-
-
