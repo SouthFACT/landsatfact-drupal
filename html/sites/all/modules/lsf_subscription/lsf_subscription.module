@@ -56,7 +56,19 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 }
 
 function insert_new_aoi_by_shape($node, $form_state) {
-	dsm(file_load($node->field_area_shapefile['und']['0']['fid']));
+	// dsm(file_load($node->field_area_shapefile['und']['0']['fid']));
+	$shpFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
+	drupal_set_message("shpPath: " . $shpFileName);
+	
+	// $command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/listdir.py";
+	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/CherokeeCounty_1.zip";
+	dsm($command);
+	
+	// $command =  "ls";
+	// dsm($command);
+	
+	$output = shell_exec($command);	
+	dsm($output);	
 }	
 
 

@@ -1,0 +1,5 @@
+Options +ExecCGI
+<Files "shp2wkt.cgi">
+    Allow from all
+    SetHandler cgi-script
+</Files>

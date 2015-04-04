@@ -18,11 +18,17 @@ body {
 
 .main-container {
     height: 100%;
-    padding: 1em;
     padding-top: 404px;
+    padding-left: 0;
+    padding-right: 0;
     background: @content-bg;
 
     > div {
+        width: 100%;
+        float: left;
+        padding-bottom: 1.5em;
+        margin-right: 0;
+        margin-left: 0;
         background: @content-bg;
     }
 }
@@ -38,4 +44,15 @@ img {
 
 .webform-component {
     margin-bottom: 1em;
+}
+
+#colorbox {
+    margin-top: 200px;
+}
+
+/**
+ * Overrides for sticky footer
+ */
+body.toolbar-drawer {
+    padding-top: 0 !important;
 }
