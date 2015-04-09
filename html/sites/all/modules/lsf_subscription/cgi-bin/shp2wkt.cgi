@@ -20,7 +20,8 @@ for filename in zf.namelist():
 	# print os.path.splitext(filename)[1]
 	if os.path.splitext(filename)[1]=='.shp':
 		shpFile = filename
-		print "doing shp file: " +shpFile
+		#print "doing shp file: " +shpFile
+		#print "at path: " +os.path.realpath(os.path.dirname(sys.argv[0]))
 		sourceZip.extract(shpFile,os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp')
 	if os.path.splitext(filename)[1]=='.shx':
 		shxFile = filename
@@ -35,5 +36,14 @@ layer = dataSource.GetLayer()
 
 for feature in layer:
     geom = feature.GetGeometryRef()
-    wkt = geom.GetEnvelope()
-print wkt 
+env = geom.GetEnvelope()
+#print env
+print str(env[0])+','+str(env[1])+','+str(env[2])+','+str(env[3])
+
+# Cleanup after yourself
+if os.path.isfile(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+shpFile):
+	os.remove(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+shpFile)
+if os.path.isfile(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+shxFile):
+	os.remove(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+shxFile)
+if os.path.isfile(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+dbfFile):
+	os.remove(os.path.realpath(os.path.dirname(sys.argv[0]))+'/shp_tmp/'+dbfFile)
