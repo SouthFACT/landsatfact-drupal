@@ -3,3 +3,7 @@ Options +ExecCGI
     Allow from all
     SetHandler cgi-script
 </Files>
+<Files "shp2json.cgi">
+    Allow from all
+    SetHandler cgi-script
+</Files>

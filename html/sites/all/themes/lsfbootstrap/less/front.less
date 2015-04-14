@@ -2,6 +2,10 @@
     position: relative;
     margin-top: 1.5em;
     margin-bottom: 3em;
+
+    &:hover .views-slideshow-controls-text {
+        z-index: 100;
+    }
 }
 
 .views-slideshow-controls-top {
@@ -16,7 +20,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    z-index: 100;
+    z-index: -100;
 
     span {
         width: 55px;
@@ -30,6 +34,7 @@
         text-indent: 100%;
         white-space: nowrap;
         overflow: hidden;
+	
     }
 
     a {

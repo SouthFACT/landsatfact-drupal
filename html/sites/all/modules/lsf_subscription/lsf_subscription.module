@@ -2,6 +2,7 @@
 // Global DB connection variables:
 $lsf_database = array();
 $database = '';
+$shapeGeoJSON = '';
 
 //This function is run when any page is initialized
 function lsf_subscription_init() {
@@ -23,37 +24,62 @@ function lsf_subscription_init() {
 	);
 }
 
+function lsf_subscription_file_insert($file) {
+	global $shapeGeoJSON;
+	// dsm($file);
+	$zipFileName = $file->uri;
+	$tmpExplode = explode('/', $zipFileName);
+	$zipFileName = end($tmpExplode);	
+	// drupal_set_message($zipFileName);
+	// Populate field_area_geojson
+	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2json.cgi sites/default/files/shapefiles/".$zipFileName;
+	// dsm($command);
+	$shapeGeoJSON = shell_exec($command);
+	// dsm($shapeGeoJSON);
+	drupal_add_js(array('lsf_subscription' => array('geojson' => $shapeGeoJSON)), 'setting');
+	drupal_add_js(drupal_get_path('module', 'lsf_subscription') .'/populate_geojson.js');
+}
+
+
 //Function to insert new user AOI when created
 function lsf_subscription_node_submit($node, $form, &$form_state) {
 	// This hook is invoked when a node form is submitted with either the "Save" or "Preview" button, 
 	// after form values have been copied to the form state's node object, but before the node is 
 	// saved or previewed.   
-	$select_type = $node->field_area_type['und'][0]['value'];
-	switch ($select_type) {
-		case "select_county":
-			insert_new_aoi_by_county($node, $form_state);
-			break;
-		case "draw_area":
-			insert_new_aoi_by_map($node, $form_state);
-			break;
-		case "upload_shapefile":
-			insert_new_aoi_by_shape($node, $form_state);
-			break;
-	}	
+    // dsm($node);    
+	if ($node->type === 'subscription' || $node->type === 'custom_request') {
+		$select_type = '';
+	    if (isset($node->field_area_type)) {
+			$select_type = $node->field_area_type['und'][0]['value'];
+			// drupal_set_message($select_type);
+	        switch ($select_type) {
+				case "select_county":
+					insert_new_aoi_by_county($node, $form_state);
+					break;
+				case "upload_shapefile":
+					insert_new_aoi_by_shape($node, $form, $form_state);
+					break;
+				case "draw_area":
+					insert_new_aoi_by_map($node, $form_state);
+					break;
+	        }	
+	    }
+	}
 }
 
-function insert_new_aoi_by_shape($node, $form_state) {
-	global $database, $lsf_database;
+function insert_new_aoi_by_shape($node, $form, &$form_state) {
+	global $database, $lsf_database, $shapeGeoJSON;
 	// dsm(file_load($node->field_area_shapefile['und']['0']['fid']));
-	$shpFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
-	// drupal_set_message("shpPath: " . $shpFileName);
-	
-	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/CherokeeCounty_1.zip";
+	$zipFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
+	// drupal_set_message("shpPath: " . $zipFileName);
+	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/".$zipFileName;
 	// dsm($command);
-	
-	$shapeWKT = shell_exec($command);	
-	// dsm($shapeWKT);	
-	$bboxArray = explode(',', $shapeWKT);
+	$shapeFileResults = shell_exec($command);	
+	$shapeFileResultsArray = explode(':', $shapeFileResults);
+	// dsm($shapeFileResultsArray);
+	$shapeFileName = $shapeFileResultsArray[0];
+	// drupal_set_message("shapeFileName: " . $shapeFileName);
+	$bboxArray = explode(',', $shapeFileResultsArray[1]);
 	// dsm($bboxArray);	
 	// POLYGON((-85.84400746799991566 33.94141657500006204,
 	// -85.84400746799991566 34.52625645100005158,
@@ -63,6 +89,7 @@ function insert_new_aoi_by_shape($node, $form_state) {
 	$wkt = "POLYGON((".$bboxArray[0]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[2]."))";
 	drupal_set_message($wkt);
 	
+	// drupal_set_message($shapeGeoJSON);
 	// Switch to the lsf db
 	Database::addConnectionInfo($database, 'default', $lsf_database);
 	db_set_active($database);	
