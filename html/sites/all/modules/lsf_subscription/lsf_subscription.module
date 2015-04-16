@@ -91,8 +91,9 @@ function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	
 	// drupal_set_message($shapeGeoJSON);
 	// Switch to the lsf db
-	Database::addConnectionInfo($database, 'default', $lsf_database);
-	db_set_active($database);	
+	// dsm($lsf_database);
+	// Database::addConnectionInfo($database, 'default', $lsf_database);
+	// db_set_active($database);	
 	
 	// Get list of quad_ids by county $shapeWKT
 	// by intersecting with landsat_quads
@@ -105,8 +106,7 @@ function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	// }	
 
 	// Be sure to set the db back to the default one
-	
-	db_set_active();	
+	// db_set_active();	
 	
 }	
 

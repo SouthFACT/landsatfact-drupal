@@ -9,3 +9,6 @@ sites/all/modules/lsf_subscription/*.ini
 # Ignore paths that contain user-generated content.
 sites/*/files
 sites/*/private
+
+#Ignore uploaded shapefiles
+sites/all/modules/lsf_subscription/cgi-bin/shp_tmp/*
