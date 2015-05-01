@@ -33,8 +33,10 @@ function lsf_subscription_file_insert($file) {
 	// drupal_set_message($zipFileName);
 	// Populate field_area_geojson
 	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2json.cgi sites/default/files/shapefiles/".$zipFileName;
+	// drupal_set_message($command);
 	// dsm($command);
 	$shapeGeoJSON = shell_exec($command);
+	// drupal_set_message($shapeGeoJSON);
 	// dsm($shapeGeoJSON);
 	drupal_add_js(array('lsf_subscription' => array('geojson' => $shapeGeoJSON)), 'setting');
 	drupal_add_js(drupal_get_path('module', 'lsf_subscription') .'/populate_geojson.js');
@@ -44,14 +46,11 @@ function lsf_subscription_file_insert($file) {
 //Function to insert new user AOI when created
 function lsf_subscription_node_submit($node, $form, &$form_state) {
 	// This hook is invoked when a node form is submitted with either the "Save" or "Preview" button, 
-	// after form values have been copied to the form state's node object, but before the node is 
-	// saved or previewed.   
-    // dsm($node);    
+	// after form values have been copied to the form state's node object, but before the node is saved or previewed.   
 	if ($node->type === 'subscription' || $node->type === 'custom_request') {
 		$select_type = '';
 	    if (isset($node->field_area_type)) {
 			$select_type = $node->field_area_type['und'][0]['value'];
-			// drupal_set_message($select_type);
 	        switch ($select_type) {
 				case "select_county":
 					insert_new_aoi_by_county($node, $form_state);
@@ -69,34 +68,28 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 
 function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	global $database, $lsf_database, $shapeGeoJSON;
-	// dsm(file_load($node->field_area_shapefile['und']['0']['fid']));
 	$zipFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
-	// drupal_set_message("shpPath: " . $zipFileName);
 	$command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/".$zipFileName;
-	// dsm($command);
 	$shapeFileResults = shell_exec($command);	
 	$shapeFileResultsArray = explode(':', $shapeFileResults);
-	// dsm($shapeFileResultsArray);
 	$shapeFileName = $shapeFileResultsArray[0];
-	// drupal_set_message("shapeFileName: " . $shapeFileName);
 	$bboxArray = explode(',', $shapeFileResultsArray[1]);
-	// dsm($bboxArray);	
+	// Example of valid WKT for reference purposes:	
 	// POLYGON((-85.84400746799991566 33.94141657500006204,
 	// -85.84400746799991566 34.52625645100005158,
 	// -85.39883260999994263 34.52625645100005158,
 	// -85.39883260999994263 33.94141657500006204,
 	// -85.84400746799991566 33.94141657500006204))
-	$wkt = "POLYGON((".$bboxArray[0]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[2]."))";
-	drupal_set_message($wkt);
+	$shapeBBOXWKT = "POLYGON((".$bboxArray[0]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[2]."))";
+	drupal_set_message("shapeBBOXWKT: " . $shapeBBOXWKT);
 	
-	// drupal_set_message($shapeGeoJSON);
 	// Switch to the lsf db
-	// dsm($lsf_database);
-	// Database::addConnectionInfo($database, 'default', $lsf_database);
-	// db_set_active($database);	
+	Database::addConnectionInfo($database, 'default', $lsf_database);
+	db_set_active($database);		
 	
-	// Get list of quad_ids by county $shapeWKT
-	// by intersecting with landsat_quads
+	// Get list of quad_ids by intersecting $shapeBBOXWKT w/ landsat_quads
+	// Example of WKT:
+	//  POLYGON((-87.3138404399 30.3424564615,-87.3138404399 30.9996022042 ,-86.7857409286 30.9996022042 ,-86.7857409286 30.3424564615,-87.3138404399 30.3424564615))
 	// try {
 		// $result = db_query('SELECT ST_AsText(ST_Envelope(geom)) AS bbox 
 		// FROM counties WHERE geoid = :geoid', array(':geoid' => $county_geoid));			
@@ -106,7 +99,7 @@ function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	// }	
 
 	// Be sure to set the db back to the default one
-	// db_set_active();	
+	db_set_active();	
 	
 }	
 
@@ -172,7 +165,6 @@ function insert_new_aoi_by_county($node, $form_state) {
 			drupal_set_message("Exception: " . $e);
 		}
 	}
-	
 	// Be sure to set the db back to the default one
 	db_set_active();
 }	
