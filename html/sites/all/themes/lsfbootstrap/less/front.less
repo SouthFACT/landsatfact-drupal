@@ -9,17 +9,16 @@
 }
 
 .views-slideshow-controls-top {
-    max-width: 940px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .views-slideshow-controls-text {
     width: 100%;
-    max-width: 940px;
     position: absolute;
     top: 0;
     bottom: 0;
+    left: 0;
     z-index: -100;
 
     span {
@@ -29,12 +28,21 @@
         top: 0;
         color: #fff;
         z-index: 10;
-        background-size: 45px;
-        background-repeat: no-repeat;
         text-indent: 100%;
         white-space: nowrap;
         overflow: hidden;
-	
+
+	&:after {
+	    content: ' ';
+	    width: 30px;
+	    height: 30px;
+	    position: absolute;
+            background-image: url("../images/lsf_slider_arrows.png");
+            background-repeat: no-repeat;
+            background-size: 60px 60px;
+	    opacity: .88;
+	    top: 48%;
+	}
     }
 
     a {
@@ -44,14 +52,28 @@
 
 .views-slideshow-controls-text-previous {
     left: 0;
-    background-image: url("../images/arrow_prev.png");
-    background-position: 70% 50%;
+
+    &:after {
+        left: 5%;
+        background-position: 100% 0%;
+    }
+
+    &:hover:after {
+        background-position: 0% 0%;
+    }
 }
 
 .views-slideshow-controls-text-next {
     right: 0;
-    background-image: url("../images/arrow_next.png");
-    background-position: 10% 50%;
+
+    &:after {
+        right: 5%;
+        background-position: 100% 100%;
+    }
+
+    &:hover:after {
+        background-position: 0% 100%;
+    }
 }
 
 .views-slideshow-controls-text-pause {
@@ -81,7 +103,6 @@
 
     .field-name-body {
 	width: 100%;
-        max-width: 940px;
         position: absolute;
         bottom: 0;
         left: 0;
@@ -103,8 +124,27 @@
 
 #block-views-applications-block {
     h2.block-title {
+        position: relative;
         text-align: center;
 	margin-bottom: 15px;
+	text-transform: uppercase;
+	color: @secondary-accent;
+
+	&:before, &:after {
+            position: absolute;
+            width: 32%;
+            height: 100%;
+            background-image: repeating-linear-gradient(180deg, transparent, transparent 16px, @secondary-accent 19px);
+            content: ' ';
+	}
+
+	&:before {
+            left: 0;
+        }
+
+        &:after {
+            right: 0;
+        }
     }
 
     .view-content {
@@ -128,6 +168,7 @@
 
         h3 {
             margin: 0;
+	    text-decoration: none;
         }
 
         a {
@@ -147,6 +188,22 @@
     .views-field-title:hover {
         background: @main-color;
         cursor: pointer;
+    }
+
+    /* This view header code should be removed when the COMING SOON label is removed */
+    .view-header {
+        background-image: repeating-linear-gradient(180deg, transparent, transparent 20px, @gray-dark 23px);
+        text-align: center;
+        font-size: 30px;
+        text-transform: uppercase;
+        margin-bottom: .5em;
+
+        span {
+            background-color: @content-bg;
+            text-align: center;
+            padding-left: .5em;
+            padding-right: .5em;
+        }
     }
 
     @media (max-width: 991px) {

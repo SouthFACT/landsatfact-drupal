@@ -33,6 +33,30 @@ body {
     }
 }
 
+.region-content {
+    h1, .h1 {
+        color: @main-color;
+    }
+
+    h2, h5, h6, .h2, .h5, .h6 {
+        color: @secondary-color;
+    }
+
+    h3, .h3 {
+        color: @secondary-accent;
+	text-decoration: underline;
+    }
+
+    h4, .h4 {
+        color: @main-font-color;
+	text-decoration: bold;
+    }
+}
+
+#page-title {
+    background-image: repeating-linear-gradient(180deg, transparent, transparent 38px, @main-color 39px);
+}
+
 a, a:visited {
     color: @main-color;
 }
@@ -44,6 +68,19 @@ img {
 
 .webform-component {
     margin-bottom: 1em;
+}
+
+table {
+    border: 1px solid @accent-light;
+}
+
+td, th {
+   padding: .5em;
+}
+
+th {
+   color: #fff;
+   background-color: @secondary-accent;
 }
 
 #colorbox {

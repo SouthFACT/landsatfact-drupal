@@ -73,68 +73,67 @@
  * @ingroup themeable
  */
 ?>
+<div class="wrapper">
 <div class="header-wrapper">
-<header id="navbar" role="banner" class="<?php print $navbar_classes; ?>">
-  <div class="container">
-    <div class="navbar-header">
+  <header id="navbar" role="banner" class="<?php print $navbar_classes; ?>">
+    <div class="container">
+      <div class="navbar-header">
 
-      <div class="site-logo">
-      <?php if ($logo): ?>
-      <a class="logo navbar-btn pull-left" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
-        <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
-      </a>
-      <?php endif; ?>
+        <div class="site-logo">
+          <?php if ($logo): ?>
+          <a class="logo navbar-btn pull-left" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
+            <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
+          </a>
+          <?php endif; ?>
+        </div>
+
+        <div class="name-slogan">
+          <?php if (!empty($site_name)): ?>
+          <h1 class="site-name"><a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
+          <?php print $site_name; ?></a></h1>
+          <?php endif; ?>
+
+          <?php if (!empty($site_slogan)): ?>
+          <h2 class="site-slogan"><?php print $site_slogan; ?></h2>
+          <?php endif; ?>
+
+          <?php print render($page['header']); ?>
+        </div>
+
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
     </div>
-
-      <div class="name-slogan">
-      <?php if (!empty($site_name)): ?>
-      <h1 class="site-name"><a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>">
-        <?php print $site_name; ?></a></h1>
-      <?php endif; ?>
-
-    <?php if (!empty($site_slogan)): ?>
-      <h2 class="site-slogan"><?php print $site_slogan; ?></h2>
-    <?php endif; ?>
-
-    <?php print render($page['header']); ?>
-  </div>
-
-      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-
-  </div>
-</header>
+  </header>
 </div>
 
 <div class="nav-wrapper">
 
-    <?php if (!empty($primary_nav) || !empty($secondary_nav) || !empty($page['navigation'])): ?>
-      <div class="navbar-collapse collapse">
-        <nav role="navigation">
-          <?php if (!empty($primary_nav)): ?>
-            <?php print render($primary_nav); ?>
-          <?php endif; ?>
-          <?php if (!empty($secondary_nav)): ?>
-            <?php print render($secondary_nav); ?>
-          <?php endif; ?>
-          <?php if (!empty($page['navigation'])): ?>
-            <?php print render($page['navigation']); ?>
-          <?php endif; ?>
-        </nav>
-      </div>
-    <?php endif; ?>
+  <?php if (!empty($primary_nav) || !empty($secondary_nav) || !empty($page['navigation'])): ?>
+    <div class="navbar-collapse collapse">
+      <nav role="navigation">
+        <?php if (!empty($primary_nav)): ?>
+          <?php print render($primary_nav); ?>
+        <?php endif; ?>
+        <?php if (!empty($secondary_nav)): ?>
+          <?php print render($secondary_nav); ?>
+        <?php endif; ?>
+        <?php if (!empty($page['navigation'])): ?>
+          <?php print render($page['navigation']); ?>
+        <?php endif; ?>
+      </nav>
+    </div>
+  <?php endif; ?>
 
-  </div>
+</div>
 
 <div class="main-container container">
-
- <!-- /#page-header -->
 
   <div class="row">
 
@@ -171,8 +170,22 @@
 
   </div>
 </div>
+<div class="push"></div>
+</div>
 
-<footer class="footer container">
+<footer class="footer">
   <?php print render($page['sub_footer']); ?>
-  <?php print render($page['footer']); ?>
 </footer>
+<?php print render($page['footer']); ?>
+
+<?php /* ?>
+  <div id="disclaimer" title="Disclaimer">
+    <?php
+      $disclaimer_node = node_load(80);
+      $disclaimer_text = field_view_field('node', $disclaimer_node, 'body', array('label' => 'hidden'));
+      print render($disclaimer_text);
+     ?>
+  </div>
+  <?php drupal_add_library('system', 'ui.dialog'); ?>
+  <script src="<?php print drupal_get_path('module', 'lsf_splash') . '/lsf_splash.js'; ?>"></script>
+<?php */ ?>

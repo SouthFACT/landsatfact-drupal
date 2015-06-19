@@ -1,5 +1,7 @@
 // Insert your styling here.
 .footer {
+    background: url("../images/footermesh.png") repeat @gray;
+
     h2 {
         margin-top: 0;
         margin-bottom: 1em;
@@ -9,10 +11,15 @@
 }
 
 .region-sub-footer {
-    background: url("../images/footermesh.png");
     padding-top: 35px;
     padding-bottom: 35px;
+    margin-left: auto;
+    margin-right: auto;
     text-shadow: 1px 1px 1px @gray-darker;
+
+    a {
+        color: @footer-link;
+    }
 }
 
 .region-footer {
@@ -21,6 +28,8 @@
     padding-left: 15px;
     padding-right: 15px;
     border-top: 1px solid @gray;
+    margin-left: 0;
+    margin-right: 0;
     color: @gray-darker;
     background-color: @brand-copyright;
     font-size: @font-size-small;
