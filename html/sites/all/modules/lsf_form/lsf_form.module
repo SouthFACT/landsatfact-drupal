@@ -1,0 +1,63 @@
+<?php
+
+function lsf_form_menu() {
+  $items = array();
+  
+
+$items['examples/form-example'] = array( //this creates a URL that will call this form at "examples/form-example"
+    'title' => 'Example Form', //page title
+    'description' => 'A form add a comment',
+    'page callback' => 'drupal_get_form', //this is the function that will be called when the page is accessed.  for a form, use drupal_get_form
+    'page arguments' => array('lsf_form_form'), //put the name of the form here
+    'access callback' => TRUE
+  );
+  return 
+
+$items;
+}
+
+function lsf_form_form($form, &$form_state) {
+ $form['comment'] = array(
+    '#type' => 'textfield',
+    '#title' => 'What is the comment?',
+    '#size' => 100,
+    '#maxlength' => 100,
+    '#required' => TRUE, //make this field required 
+  );
+  
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Click Here!'),
+  );
+  
+  return $form;
+}
+
+function lsf_form_form_validate($form, &$form_state) {
+}
+
+function lsf_form_form_submit($form, &$form_state) {
+  $comment_value = $form_state['values']['comment'];
+  $comment = (object) array(
+    'nid' => 370,
+    'cid' => 0,
+    'pid' => 0,
+    'uid' => 1,
+    'mail' => '',
+    'is_anonymous' => 0,
+    'homepage' => '',
+    'status' => COMMENT_PUBLISHED,
+    'subject' => 'NEW COMMENT',
+    'language' => LANGUAGE_NONE,
+    'comment_body' => array(
+      LANGUAGE_NONE => array(
+        0 => array (
+          'value' => $comment_value,
+          'format' => 'filtered_html'
+        )
+      )
+    ),
+  );
+  comment_submit($comment);
+  comment_save($comment);
+}

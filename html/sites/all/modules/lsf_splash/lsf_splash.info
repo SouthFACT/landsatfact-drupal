@@ -1,0 +1,4 @@
+name = LandSatFACT Splash Screen Handler
+description = Handles custom splash screen on the LandSatFACT site
+package = LandSatFACT
+core = 7.x

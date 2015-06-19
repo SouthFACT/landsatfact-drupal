@@ -1,0 +1,3 @@
+core = "7.x"
+description = "Adds a form which adds a comment to a node"
+name = "LSF Form Example Module"

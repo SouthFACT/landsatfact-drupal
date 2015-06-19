@@ -1,0 +1,13 @@
+<?php
+
+function lsf_splash_boot() {
+//    if (!isset($_SESSION) || !isset($_SESSION['disclaimer'])) {
+/*
+        drupal_add_js(drupal_get_path('module', 'lsf_splash') . '/lsf_splash.js',
+	  array('type' => 'file', 'scope' => footer, 'requires_jquery' => TRUE));
+	$_SESSION['disclaimer'] = array('seen' => TRUE);
+
+//    } 
+      dpm($_SESSION);
+*/
+}
