@@ -7,7 +7,7 @@ $shapeGeoJSON = '';
 //This function is run when any page is initialized
 function lsf_subscription_init() {
 	global $database, $lsf_database;
-	$config_info = parse_ini_file("lsf_config.ini",true);
+	$config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
 	$username = $config_info["pgsql_connection"]["username"];
 	$password = $config_info["pgsql_connection"]["password"];
 	$host = $config_info["pgsql_connection"]["host"];
@@ -87,17 +87,6 @@ function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	Database::addConnectionInfo($database, 'default', $lsf_database);
 	db_set_active($database);		
 	
-	// Get list of quad_ids by intersecting $shapeBBOXWKT w/ landsat_quads
-	// Example of WKT:
-	//  POLYGON((-87.3138404399 30.3424564615,-87.3138404399 30.9996022042 ,-86.7857409286 30.9996022042 ,-86.7857409286 30.3424564615,-87.3138404399 30.3424564615))
-	// try {
-		// $result = db_query('SELECT ST_AsText(ST_Envelope(geom)) AS bbox 
-		// FROM counties WHERE geoid = :geoid', array(':geoid' => $county_geoid));			
-	// }
-	// catch (Exception $e) {
-		// drupal_set_message("Exception: " . $e);
-	// }	
-
 	// Be sure to set the db back to the default one
 	db_set_active();	
 	
@@ -170,5 +159,5 @@ function insert_new_aoi_by_county($node, $form_state) {
 }	
 
 function insert_new_aoi_by_map($node, $form_state) {
-	
+
 }	
