@@ -1,13 +1,50 @@
 <?php
 
-function lsf_splash_boot() {
-//    if (!isset($_SESSION) || !isset($_SESSION['disclaimer'])) {
-/*
-        drupal_add_js(drupal_get_path('module', 'lsf_splash') . '/lsf_splash.js',
-	  array('type' => 'file', 'scope' => footer, 'requires_jquery' => TRUE));
-	$_SESSION['disclaimer'] = array('seen' => TRUE);
+/**
+ * Implements hook_block_info().
+ */
+function lsf_splash_block_info() {
+  $blocks = array();
+  $blocks['LSF_SPLASH'] = array(
+    'info' => t('LSF Splash'),
+  );
+  return $blocks;
+}
 
-//    } 
-      dpm($_SESSION);
-*/
+/**
+ * Implements hook_block_view().
+ */
+function lsf_splash_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+  case 'LSF_SPLASH':
+    $block['subject'] = '';
+    $block['content'] = _lsf_splash_block_content();
+    break;
+  }
+  return $block;
+}
+
+/**
+ * Loads in the disclaimer page content and adds neccesary js.
+ */
+function _lsf_splash_block_content() {
+    $disclaimer_node = node_load(80);
+    $disclaimer_text = field_view_field('node', $disclaimer_node, 'body', array('label' => 'hidden'));
+
+    $module_path = drupal_get_path('module', 'lsf_splash'); 
+    $cookie_path = libraries_get_path('jquery.cookie'); 
+    drupal_add_library('system', 'ui.dialog');
+    drupal_add_js($cookie_path . '/js.cookie.js',
+      array('type' => 'file', 'scope' => 'footer', 'requires_jquery' => TRUE));
+    drupal_add_js($module_path . '/lsf_splash.js',
+      array('type' => 'file', 'scope' => 'footer', 'requires_jquery' => TRUE));
+    drupal_add_css($module_path . '/jquery-ui-1.8.2.custom.css');
+
+    $output = '<div id="disclaimer" title="Disclaimer">';
+    $output .= render($disclaimer_text);
+    $output .= '<div class="disclaimer_accepted"><label for="disclaimer_seen">Do not show again</label><input id="disclaimer_seen" name="disclaimer_seen" type="checkbox"></div>';
+    $output .= '</div>';
+
+    return $output;
 }
