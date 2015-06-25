@@ -87,7 +87,39 @@ function insert_new_aoi_by_shape($node, $form, &$form_state) {
 	Database::addConnectionInfo($database, 'default', $lsf_database);
 	db_set_active($database);		
 	
-	// Be sure to set the db back to the default one
+	// Get list of quad_ids by spatial intersection to the shapeBBOXWKT
+	$quad_ids = array();
+	try {
+		$result = db_query("SELECT get_quad_ids_from_wkt FROM get_quad_ids_from_wkt('".$shapeBBOXWKT."')");
+	}
+	catch (Exception $e) {
+		drupal_set_message("Exception: " . $e);
+	}
+	
+    foreach ($result as $record) {
+	  $quad_ids[] = $record;
+	}		
+	// dsm($quad_ids);
+
+	// // For each quad_id insert into user_aoi:
+	foreach ($quad_ids as $key => $value) {
+		// drupal_set_message($value->quad_id);
+		try {
+			db_insert('user_aoi')->
+				fields(array(
+					'user_id' => $node->name,
+					'quad_id' => $value->get_quad_ids_from_wkt,
+					'aoi_name' => $node->title,
+					'aoi_type' => $node->type,
+					'bbox' => $shapeBBOXWKT,		
+			))->execute();
+		}
+		catch (Exception $e) {
+			drupal_set_message("Exception: " . $e);
+		}
+	}
+	
+    // Be sure to set the db back to the default one
 	db_set_active();	
 	
 }	
