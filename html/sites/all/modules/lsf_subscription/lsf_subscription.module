@@ -24,6 +24,33 @@ function lsf_subscription_init() {
 	);
 }
 
+
+function lsf_subscription_node_validate($node, $form, &$form_state) {
+    dsm($form);
+    $form['custom_request_node_form'] = array(
+        '#title'    => t('Phone'),
+        '#type'     => 'textfield',
+        '#required' => TRUE,
+    );      
+//    form_set_error('time', t('An event may not end before it starts.'));
+}
+
+// function lsf_subscription_form_custom_request_node_form_alter(&$form, $form_state, $form_id)
+// {
+    // drupal_set_message("The form is being submitted, do some extra stuff now...");  
+    // if($form_id == 'custom_request_node_form')
+    // {
+        // $form['#submit'][] = "lsf_subscription_form_submit_handler";
+    // }
+// }
+
+// function lsf_subscription_form_submit_handler($form, &$form_state)
+// {
+    // drupal_set_message("The form is being submitted, do some extra stuff now...");
+// }
+
+
+
 //Function to insert new user AOI when created
 function lsf_subscription_node_submit($node, $form, &$form_state) {
 	// This hook is invoked when a node form is submitted with either the "Save" or "Preview" button, 
@@ -51,7 +78,8 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 			$select_type = $node->field_area_type['und'][0]['value'];
 	        switch ($select_type) {
 				case "select_county":
-					insert_custom_req_aoi_by_county($node, $form_state);
+					// dsm($form);
+                    insert_custom_req_aoi_by_county($node, $form_state);
 					break;
 				case "upload_shapefile":
 					insert_custom_req_aoi_by_shape($node, $form, $form_state);
@@ -269,4 +297,4 @@ function lsf_subscription_file_insert($file) {
 
 function insert_subscription_aoi_by_map($node, $form_state) {
 
-}	
+}
