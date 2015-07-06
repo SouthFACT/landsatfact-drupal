@@ -11,12 +11,12 @@ $shapeGeoJSON = '';
 function lsf_subscription_init() {
     global $database, $lsf_database;
     $config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
-    $username = $config_info["pgsql_connection"]["username"];
-    $password = $config_info["pgsql_connection"]["password"];
-    $host = $config_info["pgsql_connection"]["host"];
-    $port = $config_info["pgsql_connection"]["port"];
-    $driver = $config_info["pgsql_connection"]["driver"];
-    $database = $config_info["pgsql_connection"]["database"];
+    $username = $config_info['pgsql_connection']['username'];
+    $password = $config_info['pgsql_connection']['password'];
+    $host = $config_info['pgsql_connection']['host'];
+    $port = $config_info['pgsql_connection']['port'];
+    $driver = $config_info['pgsql_connection']['driver'];
+    $database = $config_info['pgsql_connection']['database'];
     $lsf_database = array(
         'database' => $database,
         'username' => $username,
@@ -42,7 +42,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
 
 // function lsf_subscription_form_custom_request_node_form_alter(&$form, $form_state, $form_id)
 // {
-    // drupal_set_message("The form is being submitted, do some extra stuff now...");  
+    // drupal_set_message('The form is being submitted, do some extra stuff now...');  
     // if($form_id == 'custom_request_node_form')
     // {
         // $form['#submit'][] = "lsf_subscription_form_submit_handler";
@@ -51,7 +51,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
 
 // function lsf_subscription_form_submit_handler($form, &$form_state)
 // {
-    // drupal_set_message("The form is being submitted, do some extra stuff now...");
+    // drupal_set_message('The form is being submitted, do some extra stuff now...');
 // }
 
 
@@ -67,13 +67,13 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
         if (isset($node->field_area_type)) {
             $select_type = $node->field_area_type['und'][0]['value'];
             switch ($select_type) {
-                case "select_county":
+                case 'select_county':
                     insert_subscription_aoi_by_county($node, $form_state);
                     break;
-                case "upload_shapefile":
+                case 'upload_shapefile':
                     insert_subscription_aoi_by_shape($node, $form, $form_state);
                     break;
-                case "draw_area":
+                case 'draw_area':
                     insert_subscription_aoi_by_map($node, $form_state);
                     break;
             }
@@ -85,14 +85,14 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
         if (isset($node->field_area_type)) {
             $select_type = $node->field_area_type['und'][0]['value'];
             switch ($select_type) {
-                case "select_county":
+                case 'select_county':
                     // dsm($form);
                     insert_custom_req_aoi_by_county($node, $form_state);
                     break;
-                case "upload_shapefile":
+                case 'upload_shapefile':
                     insert_custom_req_aoi_by_shape($node, $form, $form_state);
                     break;
-                case "draw_area":
+                case 'draw_area':
                     insert_custom_req_aoi_by_map($node, $form_state);
                     break;
             }
@@ -130,7 +130,7 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
             ->execute();
     }
     catch (Exception $e) {
-        drupal_set_message("Exception: " . $e);
+        drupal_set_message('Exception: ' . $e);
     }
 
     foreach ($result as $record) {
@@ -162,7 +162,7 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
             // }
         }
         catch (Exception $e) {
-            drupal_set_message("Exception: " . $e);
+            drupal_set_message('Exception: ' . $e);
         }
     }
 
@@ -196,7 +196,7 @@ function insert_subscription_aoi_by_county($node, $form_state) {
             ->execute();	
     }
     catch (Exception $e) {
-        drupal_set_message("Exception: " . $e);
+        drupal_set_message('Exception: ' . $e);
     }
     foreach ($result as $record) {
         $quad_ids[] = $record;
@@ -211,7 +211,7 @@ function insert_subscription_aoi_by_county($node, $form_state) {
             FROM counties WHERE geoid = :geoid', array(':geoid' => $county_geoid));			
     }
     catch (Exception $e) {
-        drupal_set_message("Exception: " . $e);
+        drupal_set_message('Exception: ' . $e);
     }
     foreach ($result as $record) {
         $county_bbox[] = $record;
@@ -231,7 +231,7 @@ function insert_subscription_aoi_by_county($node, $form_state) {
                 ))->execute();
         }
         catch (Exception $e) {
-            drupal_set_message("Exception: " . $e);
+            drupal_set_message('Exception: ' . $e);
         }
     }
 
@@ -242,12 +242,12 @@ function insert_subscription_aoi_by_county($node, $form_state) {
 function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
     global $database, $lsf_database, $shapeGeoJSON;
     $zipFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
-    $command = "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/".$zipFileName;
+    $command = '/usr/bin/python ' .  drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/'.$zipFileName;
     $shapeFileResults = shell_exec($command);
     $shapeFileResultsArray = explode(':', $shapeFileResults);
     $shapeFileName = $shapeFileResultsArray[0];
     $bboxArray = explode(',', $shapeFileResultsArray[1]);
-    $shapeBBOXWKT = "POLYGON((".$bboxArray[0]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[3].",".$bboxArray[1]." ".$bboxArray[2].",".$bboxArray[0]." ".$bboxArray[2]."))";
+    $shapeBBOXWKT = 'POLYGON(('.$bboxArray[0].' '.$bboxArray[2].','.$bboxArray[0].' '.$bboxArray[3].','.$bboxArray[1].' '.$bboxArray[3].','.$bboxArray[1].' '.$bboxArray[2].','.$bboxArray[0].' '.$bboxArray[2].'))';
 
     // Switch to the lsf db
     Database::addConnectionInfo($database, 'default', $lsf_database);
@@ -259,7 +259,7 @@ function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
         $result = db_query("SELECT get_quad_ids_from_wkt FROM get_quad_ids_from_wkt('".$shapeBBOXWKT."')");
     }
     catch (Exception $e) {
-        drupal_set_message("Exception: " . $e);
+        drupal_set_message('Exception: ' . $e);
     }
 
     foreach ($result as $record) {
@@ -281,7 +281,7 @@ function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
                 ))->execute();
         }
         catch (Exception $e) {
-            drupal_set_message("Exception: " . $e);
+            drupal_set_message('Exception: ' . $e);
         }
     }
 
@@ -297,7 +297,7 @@ function lsf_subscription_file_insert($file) {
     $zipFileName = end($tmpExplode);
     // drupal_set_message($zipFileName);
     // Populate field_area_geojson
-    $command =  "/usr/bin/python " .  drupal_get_path("module", "lsf_subscription") . "/cgi-bin/shp2json.cgi sites/default/files/shapefiles/".$zipFileName;
+    $command =  '/usr/bin/python ' .  drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/shp2json.cgi sites/default/files/shapefiles/'.$zipFileName;
     // drupal_set_message($command);
     // dsm($command);
     $shapeGeoJSON = shell_exec($command);
