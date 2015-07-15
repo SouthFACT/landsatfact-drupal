@@ -3,7 +3,7 @@
 body, html {
     position: relative;
     background: url('../images/lghtmesh.png') repeat;
-    color: #666;
+    color: @main-text-color;
 }
 
 html {
@@ -58,7 +58,12 @@ body {
 }
 
 a, a:visited {
-    color: @main-color;
+    color: @main-text-color;
+    text-decoration: underline;
+
+    &:hover {
+        color: @main-color;
+    }
 }
 
 img {
@@ -83,13 +88,62 @@ th {
    background-color: @secondary-accent;
 }
 
+blockquote {
+    color: #fff;
+    position: relative;
+    border-left: 0;
+
+    p {
+        padding: 15px 75px;
+        font-size: @font-size-h3;
+        font-style: italic;
+        text-align: center;
+        background-color: @accent-light;
+    }
+
+    &:before {
+       content: '\201C';
+       width: 50%;
+       font-size: 116px;
+       font-style: italic;
+       position: absolute;
+       left: 20px;
+       top: -22px;
+       opacity: .2;
+    }
+}
+
 #colorbox {
     margin-top: 200px;
 }
+
+
 
 /**
  * Overrides for sticky footer
  */
 body.toolbar-drawer {
     padding-top: 0 !important;
+}
+
+.user-add-aoi {
+    p {
+        margin-bottom: 14px;
+        margin-top: 14px;
+    }
+
+    a {
+        background-color: @secondary-accent;
+        color: #fff;
+        text-decoration: none;
+        font-size: 20px;
+        display: inline-block;
+        padding: 10px;
+        border-radius: .25em;
+
+        &:hover {
+            color: #fff;
+            background-color: @main-color;
+        }
+    }
 }

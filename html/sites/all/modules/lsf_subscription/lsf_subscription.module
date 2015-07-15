@@ -30,6 +30,16 @@ function lsf_subscription_init() {
 // Implements hook_node_validate
 //
 // jrf (6-6-15): I don't know why this is here
+// jdm (7/12/15): I was in the middle of testing something out with validation
+//                  which is to stop the submission to display back to the user a 
+//                  list of possible scenes in which to choose from.  However, I am 
+//                  fine w/ you taking over this portion of the code if you are ready.
+//                Another possible way to do this is with AJAX... But I was thinking 
+//                this method should work.  
+//                Also you will see that I added a radio button field at the top of this
+//                content type.  The idea was going to be to hide this radio button list 
+//                until the return back from PGSQL. I am going to hold off on coding 
+//                anything further till we chat next week.
 function lsf_subscription_node_validate($node, $form, &$form_state) {
     dsm($form);
     $form['custom_request_node_form'] = array(
