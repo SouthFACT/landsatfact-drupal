@@ -41,7 +41,7 @@ function lsf_subscription_init() {
 //                until the return back from PGSQL. I am going to hold off on coding 
 //                anything further till we chat next week.
 function lsf_subscription_node_validate($node, $form, &$form_state) {
-    dsm($form);
+    // dsm($form);
     $form['custom_request_node_form'] = array(
         '#title'    => t('Phone'),
         '#type'     => 'textfield',
@@ -192,59 +192,26 @@ function insert_subscription_aoi_by_county($node, $form_state) {
             $county_geoid = $fields[$key]['und'][0]['value'];
         }
     }	
+    dsm("county_geoid: " . $county_geoid);
 
     // Switch to the lsf db
     Database::addConnectionInfo($database, 'default', $lsf_database);
     db_set_active($database);	
 
-    // Get list of quad_ids by county geoid
-    $quad_ids = array();
+    //User has selected State and County so go ahead and just 
+    //insert that thing into the user_aoi table.  Do this by calling a PGSQL 
+    //function, insert_user_aoi_by_county.sql, that recieves the necessary parmam to make use of the existing 
+    //geometry within the counties table
+    // insert_user_aoi_by_county(user_id,aoi_name,aoi_type,county_geoid);
+    dsm($node->name);
+    dsm($node->title);
+    dsm($node->type);
     try {
-        $result = db_select('quad_counties', 'qc')
-            ->fields('qc', array('quad_id'))
-            ->condition('geoid', $county_geoid,'=')
-            ->execute();	
+        $result = db_query("SELECT * FROM insert_user_aoi_by_county('".$node->title."','".$node->title."','".$node->type."','".$county_geoid."')");
     }
     catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
-    }
-    foreach ($result as $record) {
-        $quad_ids[] = $record;
-    }		
-    // dsm($quad_ids);
-
-    // Get county bbox
-    // e.g. select ST_AsText(ST_Envelope(geom)) As bbox from counties where geoid=12035;
-    $county_bbox = array();
-    try {
-        $result = db_query('SELECT ST_AsText(ST_Envelope(geom)) AS bbox 
-            FROM counties WHERE geoid = :geoid', array(':geoid' => $county_geoid));			
-    }
-    catch (Exception $e) {
-        drupal_set_message('Exception: ' . $e);
-    }
-    foreach ($result as $record) {
-        $county_bbox[] = $record;
-    }
-
-    // For each quad_id insert into user_aoi:
-    foreach ($quad_ids as $key => $value) {
-        // drupal_set_message($value->quad_id);
-        try {
-            db_insert('user_aoi')
-                ->fields(array(
-                    'user_id' => $node->name,
-                    'quad_id' => $value->quad_id,
-                    'aoi_name' => $node->title,
-                    'aoi_type' => $node->type,
-                    'bbox' => $county_bbox[0]->bbox,
-                ))->execute();
-        }
-        catch (Exception $e) {
-            drupal_set_message('Exception: ' . $e);
-        }
-    }
-
+    }    
     // Be sure to set the db back to the default one
     db_set_active();
 }
