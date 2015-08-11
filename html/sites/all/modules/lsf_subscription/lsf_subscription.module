@@ -203,11 +203,11 @@ function insert_subscription_aoi_by_county($node, $form_state) {
     //function, insert_user_aoi_by_county.sql, that recieves the necessary parmam to make use of the existing 
     //geometry within the counties table
     // insert_user_aoi_by_county(user_id,aoi_name,aoi_type,county_geoid);
-    dsm($node->name);
-    dsm($node->title);
-    dsm($node->type);
+    // dsm($node->name);
+    // dsm($node->title);
+    // dsm($node->type);
     try {
-        $result = db_query("SELECT * FROM insert_user_aoi_by_county('".$node->title."','".$node->title."','".$node->type."','".$county_geoid."')");
+        $result = db_query("SELECT * FROM insert_user_aoi_by_county('".$node->name."','".$node->title."','".$node->type."','".$county_geoid."')");
     }
     catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
@@ -217,50 +217,19 @@ function insert_subscription_aoi_by_county($node, $form_state) {
 }
 
 function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
+    // drupal_set_message('insert_subscription_aoi_by_shape');
     global $database, $lsf_database, $shapeGeoJSON;
-    $zipFileName = file_load($node->field_area_shapefile['und']['0']['fid'])->filename;
-    $command = '/usr/bin/python ' .  drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/shp2wkt.cgi sites/default/files/shapefiles/'.$zipFileName;
-    $shapeFileResults = shell_exec($command);
-    $shapeFileResultsArray = explode(':', $shapeFileResults);
-    $shapeFileName = $shapeFileResultsArray[0];
-    $bboxArray = explode(',', $shapeFileResultsArray[1]);
-    $shapeBBOXWKT = 'POLYGON(('.$bboxArray[0].' '.$bboxArray[2].','.$bboxArray[0].' '.$bboxArray[3].','.$bboxArray[1].' '.$bboxArray[3].','.$bboxArray[1].' '.$bboxArray[2].','.$bboxArray[0].' '.$bboxArray[2].'))';
 
     // Switch to the lsf db
     Database::addConnectionInfo($database, 'default', $lsf_database);
     db_set_active($database);
-
-    // Get list of quad_ids by spatial intersection to the shapeBBOXWKT
-    $quad_ids = array();
+    
     try {
-        $result = db_query("SELECT get_quad_ids_from_wkt FROM get_quad_ids_from_wkt('".$shapeBBOXWKT."')");
+        $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
     }
     catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
-    }
-
-    foreach ($result as $record) {
-        $quad_ids[] = $record;
-    }
-    // dsm($quad_ids);
-
-    // For each quad_id insert into user_aoi:
-    foreach ($quad_ids as $key => $value) {
-        // drupal_set_message($value->quad_id);
-        try {
-            db_insert('user_aoi')
-                ->fields(array(
-                    'user_id' => $node->name,
-                    'quad_id' => $value->get_quad_ids_from_wkt,
-                    'aoi_name' => $node->title,
-                    'aoi_type' => $node->type,
-                    'bbox' => $shapeBBOXWKT,
-                ))->execute();
-        }
-        catch (Exception $e) {
-            drupal_set_message('Exception: ' . $e);
-        }
-    }
+    }      
 
     // Be sure to set the db back to the default one
     db_set_active();
@@ -268,6 +237,7 @@ function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
 
 function lsf_subscription_file_insert($file) {
     global $shapeGeoJSON;
+    // drupal_set_message('lsf_subscription_file_insert');
     // dsm($file);
     $zipFileName = $file->uri;
     $tmpExplode = explode('/', $zipFileName);
