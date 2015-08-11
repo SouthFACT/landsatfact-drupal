@@ -1,0 +1,1 @@
+shp2pgsql -d -I shp_tmp/SantaRosaCounty32618_4326.shp user_aoi | psql -U dataonly "postgis2.cj0oborxdlge.us-east-1.rds.amazonaws.com"
