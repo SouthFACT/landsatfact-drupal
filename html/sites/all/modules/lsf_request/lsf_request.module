@@ -1,1 +1,119 @@
 <?php
+
+// This function sets up the connection to the LSF database using the config file
+// that is tracked outside of git.
+function _lsf_request_set_database_connection() {
+    $config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
+    $username = $config_info['pgsql_connection']['username'];
+    $password = $config_info['pgsql_connection']['password'];
+    $host = $config_info['pgsql_connection']['host'];
+    $port = $config_info['pgsql_connection']['port'];
+    $driver = $config_info['pgsql_connection']['driver'];
+    $database = $config_info['pgsql_connection']['database'];
+    $lsf_database = array(
+        'database' => $database,
+        'username' => $username,
+        'password' => $password,
+        'host' => $host,
+        'port' => $port,
+        'driver' => $driver,
+    );
+
+    Database::addConnectionInfo($database, 'default', $lsf_database);
+    db_set_active($database);	
+}
+
+// Implements hook_node_submit
+//
+// Handles logic needed to handle custom requests
+function lsf_request_node_submit($node, $form, &$form_state) {
+    if ($node->type === 'custom_request') {
+        $select_type = '';
+        if (isset($node->field_area_type)) {
+            $select_type = $node->field_area_type['und'][0]['value'];
+            switch ($select_type) {
+                case 'select_county':
+                    // dsm($form);
+                    insert_custom_req_aoi_by_county($node, $form_state);
+                    break;
+                case 'upload_shapefile':
+                    insert_custom_req_aoi_by_shape($node, $form, $form_state);
+                    break;
+                case 'draw_area':
+                    insert_custom_req_aoi_by_map($node, $form_state);
+                    break;
+            }
+        }
+    }
+}
+
+function insert_custom_req_aoi_by_county($node, $form_state) {
+    $fields = array();
+    $county_geoid = '';
+    foreach ($form_state['values'] as $key=>$value) {
+        $fields[$key] = $value;
+        if (strpos($key,'counties') !== false) {
+            $county_geoid = $fields[$key]['und'][0]['value'];
+        }
+    }
+
+    // Two date fields:
+    $date1 = preg_split('/\s+/', $form_state['values']['field_select_dates']['und'][0]['value'])[0];
+    $date2 = preg_split('/\s+/', $form_state['values']['field_select_dates']['und'][0]['value2'])[0];
+    dpm($date1);
+    dpm($date2);
+
+    // Switch to the lsf db
+    _lsf_request_set_database_connection();
+
+    // Get list of quad_ids by county geoid
+    $quad_ids = array();
+    try {
+        $result = db_select('quad_counties', 'qc')
+            ->fields('qc', array('quad_id'))
+            ->condition('geoid', $county_geoid,'=')
+            ->execute();
+    }
+    catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }
+
+    foreach ($result as $record) {
+        $quad_ids[] = $record;
+    }
+    dsm($quad_ids);
+
+    // For each quad_id's path row get list of scene_ids from landsat_metadata:
+    $landsat_metadata = array();
+    $scene_ids = array();
+    foreach ($quad_ids as $key => $value) {
+        // drupal_set_message($value->quad_id);
+        try {
+            $wrs2_path = substr((string)$value->quad_id,1,2);
+            drupal_set_message($wrs2_path);
+            $wrs2_row = substr((string)$value->quad_id,4,2);
+            drupal_set_message($wrs2_row);
+            // SELECT * FROM get_scene_ids_from_path_row('2015-06-01','2015-06-30',18,35);
+            $result = db_query("SELECT * FROM get_scene_ids_from_path_row('".(string)$date1."','".(string)$date2."','".$wrs2_path."','".$wrs2_row."')");
+            // foreach ($result as $record) {
+            //     $day = substr((string)$record->scene_id,13,3);
+            //     $sensor = substr((string)$value->scene_id,0,3);
+            //     drupal_set_message($day);
+            //     drupal_set_message($sensor);
+            //     $landsat_metadata[] = $record;
+            //     if (!in_array($record->scene_id,$scene_ids) {
+            //         $scene_ids[] = $record->scene_id;
+            //     }
+            // }
+        }
+        catch (Exception $e) {
+            drupal_set_message('Exception: ' . $e);
+        }
+    }
+
+    // dsm($scene_ids);
+    // dsm($landsat_metadata);
+    // Be sure to set the db back to the default one
+    db_set_active();
+}
+
