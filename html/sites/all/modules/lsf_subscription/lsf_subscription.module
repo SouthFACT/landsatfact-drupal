@@ -1,15 +1,12 @@
 <?php
 // Global DB connection variables:
-$lsf_database = array();
-$database = '';
+//$lsf_database = array();
+//$database = '';
 $shapeGeoJSON = '';
 
 // This function sets up the connection to the LSF database using the config file
 // that is tracked outside of git.
-//
-// This function is run when any page is initialized
-function lsf_subscription_init() {
-    global $database, $lsf_database;
+function _lsf_subscription_set_database_connection() {
     $config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
     $username = $config_info['pgsql_connection']['username'];
     $password = $config_info['pgsql_connection']['password'];
@@ -25,6 +22,9 @@ function lsf_subscription_init() {
         'port' => $port,
         'driver' => $driver,
     );
+
+    Database::addConnectionInfo($database, 'default', $lsf_database);
+    db_set_active($database);	
 }
 
 // Implements hook_node_validate
@@ -111,7 +111,7 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
 }
 
 function insert_custom_req_aoi_by_county($node, $form_state) {
-    global $database, $lsf_database;
+    //    global $database, $lsf_database;
     $fields = array();
     $county_geoid = '';
     foreach ($form_state['values'] as $key=>$value) {
@@ -128,8 +128,9 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
     dpm($date2);
 
     // Switch to the lsf db
-    Database::addConnectionInfo($database, 'default', $lsf_database);
-    db_set_active($database);
+    _lsf_subscription_set_database_connection();
+    //    Database::addConnectionInfo($database, 'default', $lsf_database);
+    //    db_set_active($database);
 
     // Get list of quad_ids by county geoid
     $quad_ids = array();
@@ -183,7 +184,7 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
 }
 
 function insert_subscription_aoi_by_county($node, $form_state) {
-    global $database, $lsf_database;
+    //    global $database, $lsf_database;
     $fields = array();
     $county_geoid = '';
     foreach ($form_state['values'] as $key=>$value) {
@@ -195,12 +196,13 @@ function insert_subscription_aoi_by_county($node, $form_state) {
     dsm("county_geoid: " . $county_geoid);
 
     // Switch to the lsf db
-    Database::addConnectionInfo($database, 'default', $lsf_database);
-    db_set_active($database);	
+    _lsf_subscription_set_database_connection();
+    //    Database::addConnectionInfo($database, 'default', $lsf_database);
+    //    db_set_active($database);	
 
     //User has selected State and County so go ahead and just 
     //insert that thing into the user_aoi table.  Do this by calling a PGSQL 
-    //function, insert_user_aoi_by_county.sql, that recieves the necessary parmam to make use of the existing 
+    //function, insert_user_aoi_by_county.sql, that receives the necessary parameter to make use of the existing 
     //geometry within the counties table
     // insert_user_aoi_by_county(user_id,aoi_name,aoi_type,county_geoid);
     // dsm($node->name);
@@ -218,11 +220,13 @@ function insert_subscription_aoi_by_county($node, $form_state) {
 
 function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
     // drupal_set_message('insert_subscription_aoi_by_shape');
-    global $database, $lsf_database, $shapeGeoJSON;
+    //    global $database, $lsf_database, $shapeGeoJSON;
+    global $shapeGeoJSON;
 
     // Switch to the lsf db
-    Database::addConnectionInfo($database, 'default', $lsf_database);
-    db_set_active($database);
+    _lsf_subscription_set_database_connection();
+    //    Database::addConnectionInfo($database, 'default', $lsf_database);
+    //    db_set_active($database);
     
     try {
         $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
