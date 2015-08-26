@@ -132,8 +132,9 @@ function insert_subscription_aoi_by_county($node) {
     // function, insert_user_aoi_by_county.sql, that receives the necessary parameter to make use of the existing 
     // geometry within the counties table
     try {
-        $result = db_query('SELECT * FROM insert_user_aoi_by_county(:uid, :title, :type, :geoid)',
+        $result = db_query('SELECT * FROM insert_user_aoi_by_county(:nid, :uid, :title, :type, :geoid)',
                            array(
+                               ':nid' => $node->nid,
                                ':uid' => $node->uid,
                                ':title' => $node->title,
                                ':type' => $node->type,
