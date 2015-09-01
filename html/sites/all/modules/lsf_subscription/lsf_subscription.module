@@ -99,7 +99,7 @@ function lsf_subscription_node_insert($node) {
                     insert_subscription_aoi_by_county($node);
                     break;
                 case 'upload_shapefile':
-                    //                    insert_subscription_aoi_by_shape($node, $form, $form_state);
+                    insert_subscription_aoi_by_shape($node);
                     break;
                 case 'draw_area':
                     //                    insert_subscription_aoi_by_map($node, $form_state);
@@ -171,16 +171,28 @@ function insert_subscription_aoi_by_county($node) {
     db_set_active();
 }
 
-function insert_subscription_aoi_by_shape($node, $form, &$form_state) {
-    // drupal_set_message('insert_subscription_aoi_by_shape');
-    global $shapeGeoJSON;
+function insert_subscription_aoi_by_shape($node) {
+    //    global $shapeGeoJSON;
+    geophp_load();
+    $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
+    $geojson_writer = new GeoJSON();
+    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($geojson_writer->write($geom),TRUE));
 
     _lsf_subscription_set_database_connection();
     
     try {
-        $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
-    }
-    catch (Exception $e) {
+        /*
+        $result = db_query('SELECT * FROM insert_user_aoi_by_shape(:nid, :uid, :title, :type, :geojson)',
+                           array(
+                               ':nid' => $node->nid,
+                               ':uid' => $node->uid,
+                               ':title' => $node->title,
+                               ':type' => $node->type,
+                               ':geojson' => $eojson_writer->write($geom)
+                           ));
+        */
+        //        $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
+    } catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
     }      
 
