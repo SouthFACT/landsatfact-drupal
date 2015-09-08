@@ -20,12 +20,12 @@ except:
     pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + "\nError Info:\n    " + \
             str(sys.exc_type)+ ": " + str(sys.exc_value) + "\n"
     logging.error(pymsg)
+    print "Error in checkZip"
     sys.exit(-1)
 
 if missing:
-    localLib.removeZip(inZipFile)
+    print "Zip is missing at least one file"
     sys.exit(0)
 else:
+    print "Zip is complete"
     sys.exit(1)
-
-

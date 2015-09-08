@@ -39,11 +39,12 @@ except:
     pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + "\nError Info:\n    " + \
             str(sys.exc_type)+ ": " + str(sys.exc_value) + "\n"
     logging.error(pymsg)
+    print "PYTHON ERROR"
     sys.exit(-1)
+
+print count
 
 if count > 10000:
     sys.exit(1)
 else:
     sys.exit(0)
-
-

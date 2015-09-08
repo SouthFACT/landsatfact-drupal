@@ -2,28 +2,29 @@
 #**********************************************************************
 # Description:
 #    Extracts the neccesary files for processing a shapefile into the designated directory.
-#    Returns 0 return code for False and 1 for True. A negative return code indicates an error.
 #
 # Arguments:
 #  0 - Input Zip (inZip)
 #  1 - Target directory (trDir)
 #
 #**********************************************************************
-import sys, zipfile
+import sys, os, zipfile
 
-inZip = file(sys.argv[1])
-zippedFile = zipfile.ZipFile(inZip)
+inZip = zipfile.ZipFile(sys.argv[1], 'r')
+trDir = sys.argv[2]
 
-if zipfile.is_zipfile(inFile):
-    ret=zippedFile.testzip()
-    if ret is not None:
-        return ret
-    else:
-        contents=zippedFile.namelist()
-        if (len(contents) >= 4):
-            contentStr=' '.join(contents)
+for inFile in inZip.namelist():
+    extension = os.path.splitext(inFile)[1]
+    if extension == '.shp':
+        shpFile = inFile
+        inZip.extract(inFile, trDir)
+    if extension == '.shx':
+        inZip.extract(inFile, trDir)
+    if extension == '.dbf':
+        inZip.extract(inFile, trDir)
+    if extension == '.prj':
+        inZip.extract(inFile, trDir)
 
-            m = re.search('(\w+)(\.shp)', contentStr)
-            base=m.group().split('.')[0]
-            if (base+'.dbf' in contentStr and base+'.shp' in contentStr and base+'.shx' in contentStr and base+'.prj' in contentStr):
-                return ''
+print shpFile
+
+sys.exit(1);
