@@ -39,7 +39,7 @@ function _lsf_subscription_set_database_connection() {
 //                until the return back from PGSQL. I am going to hold off on coding 
 //                anything further till we chat next week.
 function lsf_subscription_node_validate($node, $form, &$form_state) {
-    //    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
+    //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/form.log', print_r($form,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($form_state,TRUE));
 
@@ -48,19 +48,41 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
     // it will populate field_geojson with the generated geom.
     if ($node->type === 'subscription') {
         if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'upload_shapefile') {
-            $lsf_path = drupal_get_path('module', 'lsf_subscription');
-            // This line will need to be uncommented once a proper check zip python file is created
-            //        $zip_contains_files = shell_exec($lsf_path . '/check_zip.py');
-            $zip_contains_files = TRUE;
-            if ($zip_contains_files !== TRUE) {
-                form_set_error('Zip Missing Files', t('Error: Your uploaded zip file must contain .shp, .shx and .dbf files.'));
+            if (!isset($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']) || $node->field_area_shapefile[LANGUAGE_NONE][0]['fid'] === 0) {
+                form_set_error(t('Invalid Zip in area shapefile'), t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.'));
             }
 
-            // This line will need to be uncommented once the geojson generating function is created
-            //            $geojson = shell_exec($lsf_path . '/generate_geojson.py');
-            $geojson = '{"type": "Feature","properties":{"name":"Coors Field","show_on_map":true},"geometry":{"type": "Point","coordinates":[-104.99404, 39.75621]}}';
-            form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson))), $form_state);
-            file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($form_state,TRUE));
+            $shapefile = file_load($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']);
+            $shapefile_path = 'sites/default/files/' . file_uri_target($shapefile->uri);
+            $lsf_path = drupal_get_path('module', 'lsf_subscription');
+
+            $check_zip_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkZip.py ' . $shapefile_path;
+            $check_zip = shell_exec($check_zip_command);
+            if (trim($check_zip) !== 'Zip is complete') {
+                form_set_error(t('Invalid Zip in area shapefile'), t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.'));
+            }
+
+            $target_directory = (string) $shapefile->fid . '_' . str_replace('.zip', '', $shapefile->filename);
+            $target_directory = str_replace(' ', '', $target_directory);
+            drupal_mkdir('public://shapefiles/' . $target_directory);
+
+            $extracted_shapefile = shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/extractZip.py ' . $shapefile_path . ' sites/default/files/shapefiles/' . $target_directory);
+            $extracted_shapefile = 'sites/default/files/shapefiles/' . $target_directory . '/' . $extracted_shapefile;
+
+            $check_vertices_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkVerticies.py ' . $extracted_shapefile;
+            $check_vertices = shell_exec($check_vertices_command);
+            if (trim($check_vertices) === 'PYTHON ERROR') {
+                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
+                form_set_error(t('Invalid shapefile in area shapefile'), t('There is an error in your shapefile. Please verify your data and try again.'));
+            } else if ((int) $check_vertices > 10000) {
+                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/simplifyShp.py ' . $extracted_shapefile);
+            }
+
+            $command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/shpToGeoJSON.py ' . $extracted_shapefile;
+            $geojson2 = shell_exec($command);
+
+            form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson2))), $form_state);
+            shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
         }
     }
     //    $form['custom_request_node_form'] = array(
@@ -176,21 +198,19 @@ function insert_subscription_aoi_by_shape($node) {
     geophp_load();
     $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
     $geojson_writer = new GeoJSON();
-    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($geojson_writer->write($geom),TRUE));
+    //    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($geojson_writer->write($geom),TRUE));
 
     _lsf_subscription_set_database_connection();
     
     try {
-        /*
-        $result = db_query('SELECT * FROM insert_user_aoi_by_shape(:nid, :uid, :title, :type, :geojson)',
+        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson2(:nid, :uid, :title, :type, :geojson)',
                            array(
                                ':nid' => $node->nid,
                                ':uid' => $node->uid,
                                ':title' => $node->title,
                                ':type' => $node->type,
-                               ':geojson' => $eojson_writer->write($geom)
+                               ':geojson' => $geojson_writer->write($geom)
                            ));
-        */
         //        $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
     } catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
