@@ -140,7 +140,7 @@ def reprojectShp(inShp):
     # Close DataSources and clean up so that inShp can be overwritten
     outFeature.Destroy
     outDataSet.Destroy()
-    feature.Destroy()
+#    feature.Destroy()
     dataSource=source_srs=target_srs=layer=feature=geom=coordTrans=outDataSet=inLayerDefn=None
     outLayer=fieldDefn=outFeature=outLayerDefn=file=None
 
@@ -157,8 +157,8 @@ def geoJSONToShp(inJSON):
     poly= ogr.CreateGeometryFromJson(inJSON)
     # create a new shapefile to insert the new geometry into
     # https://pcjericks.github.io/py-gdalogr-cookbook/vector_layers.html#create-a-new-shapefile-and-add-data
-    import pdb
-    pdb.set_trace()
+#    import pdb
+#    pdb.set_trace()
     driver = ogr.GetDriverByName('ESRI Shapefile')
     tmp_dir = '/var/vsites/landsatfact-dev.nemac.org/project/html/sites/all/modules/lsf_subscription/cgi-bin/shp_tmp/'
 #    tmp_dir=r'H:\SPA_Secure\Geospatial\LandsatFACT\code\reduce\shapes'

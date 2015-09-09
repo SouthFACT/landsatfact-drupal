@@ -39,10 +39,12 @@ except:
     pymsg = "PYTHON ERRORS:\nTraceback Info:\n" + tbinfo + "\nError Info:\n    " + \
             str(sys.exc_type)+ ": " + str(sys.exc_value) + "\n"
     logging.error(pymsg)
+    print "PYTHON ERROR"
     sys.exit(-1)
 
 if bool:
+    print "TRUE"
     sys.exit(1)
 else:
+    print "FALSE"
     sys.exit(0)
-
