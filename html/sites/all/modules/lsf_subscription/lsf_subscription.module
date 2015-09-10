@@ -107,25 +107,22 @@ function lsf_subscription_node_insert($node) {
 }
 
 
-// Implements hook_node_submit
+// Implements hook_node_update
 //
-// Function to insert new user AOI when created
-function lsf_subscription_node_submit($node, $form, &$form_state) {
-    // This hook is invoked when a node form is submitted with either the "Save" or "Preview" button,
-    // after form values have been copied to the form state's node object, but before the node is saved or previewed.
+// @param object node
+function lsf_subscription_node_update($node) {
     if ($node->type === 'subscription') {
-        $select_type = '';
         if (isset($node->field_area_type)) {
             $select_type = $node->field_area_type['und'][0]['value'];
             switch ($select_type) {
                 case 'select_county':
-                    //                    insert_subscription_aoi_by_county($node, $form_state);
+                    _lsf_subscription_update_aoi_by_county($node);
                     break;
                 case 'upload_shapefile':
-                    //                    insert_subscription_aoi_by_shape($node, $form, $form_state);
+                    _lsf_subscription_update_aoi_by_shape($node);
                     break;
                 case 'draw_area':
-                    //                    insert_subscription_aoi_by_map($node, $form_state);
+                    _lsf_subscription_update_aoi_by_map($node);
                     break;
             }
         }
@@ -165,6 +162,38 @@ function insert_subscription_aoi_by_county($node) {
     db_set_active();
 }
 
+// Updates aoi for a users county based subscription.
+//
+// @param array $node New node object that is being created
+function _lsf_subscription_update_aoi_by_county($node) {
+    $county_geoid = '';
+    // We do not know which field_*_counties was set, so this will loop over all fields and find which one has a value
+    foreach ($node as $key => $value) {
+        if (strpos($key, 'counties') !== FALSE) {
+            if (!isset($value[LANGUAGE_NONE])) {
+                continue;
+            }
+            $county_geoid = $value[LANGUAGE_NONE][0]['value'];
+            break;
+        }
+    }	
+
+    _lsf_subscription_set_database_connection();
+
+    // Inserts subscription into remote database with the function insert_user_aoi_by_county
+    try {
+        $result = db_query('SELECT * FROM update_user_aoi_by_county(:nid, :geoid)',
+                           array(
+                               ':nid' => $node->nid,
+                               ':geoid' => $county_geoid
+                           ));
+    } catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }    
+    // Sets the db back to the default one
+    db_set_active();
+}
+
 // Inserts aoi for a users shapefile based subscription.
 //
 // @param array $node New node object that is being created
@@ -190,7 +219,31 @@ function insert_subscription_aoi_by_shape($node) {
 
     // Sets the db back to the default one
     db_set_active();
-}	
+}
+
+// Updates aoi for a users shapefile based subscription.
+//
+// @param array $node New node object that is being created
+function _lsf_subscription_update_aoi_by_shape($node) {
+    geophp_load();
+    $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
+    $geojson_writer = new GeoJSON();
+
+    _lsf_subscription_set_database_connection();
+    
+    try {
+        $result = db_query('SELECT * FROM update_user_aoi_by_geojson(:nid, :geojson)',
+                           array(
+                               ':nid' => $node->nid,
+                               ':geojson' => $geojson_writer->write($geom)
+                           ));
+    } catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }      
+
+    // Sets the db back to the default one
+    db_set_active();
+}
 
 // Inserts aoi for a users custom area based subscription.
 //
@@ -209,6 +262,30 @@ function insert_subscription_aoi_by_map($node) {
                                ':uid' => $node->uid,
                                ':title' => $node->title,
                                ':type' => $node->type,
+                               ':geojson' => $geojson_writer->write($geom)
+                           ));
+    } catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }      
+
+    // Sets the db back to the default one
+    db_set_active();
+}	
+
+// Updates aoi for a users custom area based subscription.
+//
+// @param array $node New node object that is being created
+function _lsf_subscription_update_aoi_by_map($node) {
+    geophp_load();
+    $geom = geophp::load($node->field_custom_area[LANGUAGE_NONE][0]['geom']);
+    $geojson_writer = new GeoJSON();
+    
+    _lsf_subscription_set_database_connection();
+    
+    try {
+        $result = db_query('SELECT * FROM update_user_aoi_by_geojson(:nid, :geojson)',
+                           array(
+                               ':nid' => $node->nid,
                                ':geojson' => $geojson_writer->write($geom)
                            ));
     } catch (Exception $e) {
