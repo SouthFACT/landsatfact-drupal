@@ -1,6 +1,4 @@
 <?php
-// Global DB connection variables:
-$shapeGeoJSON = '';
 
 // This function sets up the connection to the LSF database using the config file
 // that is tracked outside of git.
@@ -26,27 +24,13 @@ function _lsf_subscription_set_database_connection() {
 }
 
 // Implements hook_node_validate
-//
-// jrf (6-6-15): I don't know why this is here
-// jdm (7/12/15): I was in the middle of testing something out with validation
-//                  which is to stop the submission to display back to the user a 
-//                  list of possible scenes in which to choose from.  However, I am 
-//                  fine w/ you taking over this portion of the code if you are ready.
-//                Another possible way to do this is with AJAX... But I was thinking 
-//                this method should work.  
-//                Also you will see that I added a radio button field at the top of this
-//                content type.  The idea was going to be to hide this radio button list 
-//                until the return back from PGSQL. I am going to hold off on coding 
-//                anything further till we chat next week.
 function lsf_subscription_node_validate($node, $form, &$form_state) {
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/form.log', print_r($form,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($form_state,TRUE));
 
-    // This will check to see if the uploaded zip contains the correct files. If it does
-    // then it will attempt to convert the shapefile to geojson and it if it does then
-    // it will populate field_geojson with the generated geom.
     if ($node->type === 'subscription') {
+        // Runs validation on uploaded zip, converts it to geojson and sets field_geojson
         if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'upload_shapefile') {
             if (!isset($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']) || $node->field_area_shapefile[LANGUAGE_NONE][0]['fid'] === 0) {
                 form_set_error(t('Invalid Zip in area shapefile'), t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.'));
@@ -185,10 +169,7 @@ function insert_subscription_aoi_by_county($node) {
 
     _lsf_subscription_set_database_connection();
 
-    // User has selected State and County so go ahead and just 
-    // insert that thing into the user_aoi table.  Do this by calling a PGSQL 
-    // function, insert_user_aoi_by_county.sql, that receives the necessary parameter to make use of the existing 
-    // geometry within the counties table
+    // Inserts subscription into remote database with the function insert_user_aoi_by_county
     try {
         $result = db_query('SELECT * FROM insert_user_aoi_by_county(:nid, :uid, :title, :type, :geoid)',
                            array(
@@ -202,7 +183,7 @@ function insert_subscription_aoi_by_county($node) {
         drupal_set_message('Exception: ' . $e);
     }    
 
-    // Be sure to set the db back to the default one
+    // Sets the db back to the default one
     db_set_active();
 }
 
@@ -229,7 +210,7 @@ function insert_subscription_aoi_by_shape($node) {
         drupal_set_message('Exception: ' . $e);
     }      
 
-    // Be sure to set the db back to the default one
+    // Sets the db back to the default one
     db_set_active();
 }	
 
@@ -256,25 +237,6 @@ function insert_subscription_aoi_by_map($node) {
         drupal_set_message('Exception: ' . $e);
     }      
 
-    // Be sure to set the db back to the default one
+    // Sets the db back to the default one
     db_set_active();
 }	
-
-function lsf_subscription_file_insert($file) {
-    global $shapeGeoJSON;
-    // drupal_set_message('lsf_subscription_file_insert');
-    // dsm($file);
-    $zipFileName = $file->uri;
-    $tmpExplode = explode('/', $zipFileName);
-    $zipFileName = end($tmpExplode);
-    // drupal_set_message($zipFileName);
-    // Populate field_area_geojson
-    $command =  '/usr/bin/python ' .  drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/shp2json.cgi sites/default/files/shapefiles/'.$zipFileName;
-    // drupal_set_message($command);
-    // dsm($command);
-    $shapeGeoJSON = shell_exec($command);
-    // drupal_set_message($shapeGeoJSON);
-    // dsm($shapeGeoJSON);
-    drupal_add_js(array('lsf_subscription' => array('geojson' => $shapeGeoJSON)), 'setting');
-    drupal_add_js(drupal_get_path('module', 'lsf_subscription') .'/populate_geojson.js');
-}
