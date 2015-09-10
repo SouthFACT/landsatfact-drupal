@@ -129,6 +129,25 @@ function lsf_subscription_node_update($node) {
     }
 }
 
+// Implements hook_node_delete
+//
+// @param object node
+function lsf_subscription_node_delete($node) {
+    if ($node->type === 'subscription') {
+        _lsf_subscription_set_database_connection();
+        try {
+            $result = db_query('SELECT * FROM delete_user_aoi_by_nid(:nid)',
+                               array(
+                                   ':nid' => $node->nid,
+                               ));
+        } catch (Exception $e) {
+            drupal_set_message('Exception: ' . $e);
+        }    
+        // Sets the db back to the default one
+        db_set_active();
+    }
+}
+
 // Inserts aoi for a users county based subscription.
 //
 // @param array $node New node object that is being created
