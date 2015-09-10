@@ -69,6 +69,15 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
             $extracted_shapefile = shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/extractZip.py ' . $shapefile_path . ' sites/default/files/shapefiles/' . $target_directory);
             $extracted_shapefile = 'sites/default/files/shapefiles/' . $target_directory . '/' . $extracted_shapefile;
 
+            $check_projection_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkSpatialRef.py ' . $extracted_shapefile;
+            $check_projection = shell_exec($check_projection_command);
+            if (trim($check_projection) === 'PYTHON ERROR') {
+                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
+                form_set_error(t('Invalid shapefile in area shapefile'), t('There is an error in your shapefile. Please verify your data and try again.'));
+            } else if (trim($check_projection) === 'FALSE') {
+                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/reprojectShp.py ' . $extracted_shapefile);
+            }
+
             $check_vertices_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkVerticies.py ' . $extracted_shapefile;
             $check_vertices = shell_exec($check_vertices_command);
             if (trim($check_vertices) === 'PYTHON ERROR') {
@@ -83,6 +92,10 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
 
             form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson2))), $form_state);
             shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
+        } else if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
+            if ($node->field_custom_area[LANGUAGE_NONE][0]['geom'] === '') {
+                form_set_error(t('custom area missing value'), t('Subscriptions of type "Draw Area" require a polygon to be drawn onto the "Custom Area" map.'));
+            }
         }
     }
     //    $form['custom_request_node_form'] = array(
@@ -124,7 +137,7 @@ function lsf_subscription_node_insert($node) {
                     insert_subscription_aoi_by_shape($node);
                     break;
                 case 'draw_area':
-                    //                    insert_subscription_aoi_by_map($node, $form_state);
+                    insert_subscription_aoi_by_map($node);
                     break;
             }
         }
@@ -150,7 +163,7 @@ function lsf_subscription_node_submit($node, $form, &$form_state) {
                     //                    insert_subscription_aoi_by_shape($node, $form, $form_state);
                     break;
                 case 'draw_area':
-                    insert_subscription_aoi_by_map($node, $form_state);
+                    //                    insert_subscription_aoi_by_map($node, $form_state);
                     break;
             }
         }
@@ -193,12 +206,13 @@ function insert_subscription_aoi_by_county($node) {
     db_set_active();
 }
 
+// Inserts aoi for a users shapefile based subscription.
+//
+// @param array $node New node object that is being created
 function insert_subscription_aoi_by_shape($node) {
-    //    global $shapeGeoJSON;
     geophp_load();
     $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
     $geojson_writer = new GeoJSON();
-    //    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($geojson_writer->write($geom),TRUE));
 
     _lsf_subscription_set_database_connection();
     
@@ -211,7 +225,33 @@ function insert_subscription_aoi_by_shape($node) {
                                ':type' => $node->type,
                                ':geojson' => $geojson_writer->write($geom)
                            ));
-        //        $result = db_query("SELECT * FROM insert_user_aoi_by_shape('".$node->title."','".$node->title."','".$node->type."','".$shapeGeoJSON."')");
+    } catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }      
+
+    // Be sure to set the db back to the default one
+    db_set_active();
+}	
+
+// Inserts aoi for a users custom area based subscription.
+//
+// @param array $node New node object that is being created
+function insert_subscription_aoi_by_map($node) {
+    geophp_load();
+    $geom = geophp::load($node->field_custom_area[LANGUAGE_NONE][0]['geom']);
+    $geojson_writer = new GeoJSON();
+    
+    _lsf_subscription_set_database_connection();
+    
+    try {
+        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson2(:nid, :uid, :title, :type, :geojson)',
+                           array(
+                               ':nid' => $node->nid,
+                               ':uid' => $node->uid,
+                               ':title' => $node->title,
+                               ':type' => $node->type,
+                               ':geojson' => $geojson_writer->write($geom)
+                           ));
     } catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
     }      
@@ -237,8 +277,4 @@ function lsf_subscription_file_insert($file) {
     // dsm($shapeGeoJSON);
     drupal_add_js(array('lsf_subscription' => array('geojson' => $shapeGeoJSON)), 'setting');
     drupal_add_js(drupal_get_path('module', 'lsf_subscription') .'/populate_geojson.js');
-}
-
-function insert_subscription_aoi_by_map($node, $form_state) {
-
 }
