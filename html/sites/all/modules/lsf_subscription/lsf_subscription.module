@@ -33,52 +33,69 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
         // Runs validation on uploaded zip, converts it to geojson and sets field_geojson
         if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'upload_shapefile') {
             if (!isset($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']) || $node->field_area_shapefile[LANGUAGE_NONE][0]['fid'] === 0) {
-                form_set_error(t('Invalid Zip in area shapefile'), t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.'));
+                form_set_error(
+                    t('Invalid Zip in area shapefile'),
+                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
+                );
             }
 
-            $shapefile = file_load($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']);
-            $shapefile_path = 'sites/default/files/' . file_uri_target($shapefile->uri);
-            $lsf_path = drupal_get_path('module', 'lsf_subscription');
+            $zip = file_load($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']);
+            $zip_path = 'sites/default/files/' . file_uri_target($zip->uri);
+            $python_path = '/usr/bin/python ' . drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/';
 
-            $check_zip_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkZip.py ' . $shapefile_path;
-            $check_zip = shell_exec($check_zip_command);
+            // verifies the uploaded zip contains .shp, .shx, .dbf & .prj files
+            $check_zip = shell_exec($python_path . 'checkZip.py ' . $zip_path);
             if (trim($check_zip) !== 'Zip is complete') {
-                form_set_error(t('Invalid Zip in area shapefile'), t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.'));
+                form_set_error(
+                    t('Invalid Zip in area shapefile'),
+                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
+                );
             }
 
-            $target_directory = (string) $shapefile->fid . '_' . str_replace('.zip', '', $shapefile->filename);
+            $target_directory = (string) $zip->fid . '_' . str_replace('.zip', '', $zip->filename);
             $target_directory = str_replace(' ', '', $target_directory);
             drupal_mkdir('public://shapefiles/' . $target_directory);
 
-            $extracted_shapefile = shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/extractZip.py ' . $shapefile_path . ' sites/default/files/shapefiles/' . $target_directory);
-            $extracted_shapefile = 'sites/default/files/shapefiles/' . $target_directory . '/' . $extracted_shapefile;
+            // cache this command since it is always the same
+            $remove_extracted_command = $python_path . 'removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory;
 
-            $check_projection_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkSpatialRef.py ' . $extracted_shapefile;
-            $check_projection = shell_exec($check_projection_command);
+            $shapefile = shell_exec($python_path . 'extractZip.py ' . $zip_path . ' sites/default/files/shapefiles/' . $target_directory);
+            $shapefile = 'sites/default/files/shapefiles/' . $target_directory . '/' . $shapefile;
+
+            // converts the shapefile to ESPG:4326 as required by drupal if it is not
+            $check_projection = shell_exec($python_path . 'checkSpatialRef.py ' . $shapefile);
             if (trim($check_projection) === 'PYTHON ERROR') {
-                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
-                form_set_error(t('Invalid shapefile in area shapefile'), t('There is an error in your shapefile. Please verify your data and try again.'));
+                shell_exec($remove_extracted_command);
+                form_set_error(
+                    t('Invalid shapefile in area shapefile'),
+                    t('There is an error in your shapefile. Please verify your data and try again.')
+                );
             } else if (trim($check_projection) === 'FALSE') {
-                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/reprojectShp.py ' . $extracted_shapefile);
+                shell_exec($python_path . 'reprojectShp.py ' . $shapefile);
             }
 
-            $check_vertices_command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/checkVerticies.py ' . $extracted_shapefile;
-            $check_vertices = shell_exec($check_vertices_command);
+            // reduces the verticies to < 10000 to reduce the complexity of the server intersections
+            $check_vertices = shell_exec($python_path . 'checkVerticies.py ' . $shapefile);
             if (trim($check_vertices) === 'PYTHON ERROR') {
-                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
-                form_set_error(t('Invalid shapefile in area shapefile'), t('There is an error in your shapefile. Please verify your data and try again.'));
+                shell_exec($remove_extracted_command);
+                form_set_error(
+                    t('Invalid shapefile in area shapefile'),
+                    t('There is an error in your shapefile. Please verify your data and try again.')
+                );
             } else if ((int) $check_vertices > 10000) {
-                shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/simplifyShp.py ' . $extracted_shapefile);
+                shell_exec($python_path . 'simplifyShp.py ' . $shapefile);
             }
 
-            $command = '/usr/bin/python ' . $lsf_path . '/cgi-bin/shpToGeoJSON.py ' . $extracted_shapefile;
-            $geojson2 = shell_exec($command);
+            $geojson = shell_exec($python_path . 'shpToGeoJSON.py ' . $shapefile);
 
-            form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson2))), $form_state);
-            shell_exec('/usr/bin/python ' . $lsf_path . '/cgi-bin/removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory);
+            form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson))), $form_state);
+            shell_exec($remove_extracted_command);
         } else if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
             if ($node->field_custom_area[LANGUAGE_NONE][0]['geom'] === '') {
-                form_set_error(t('custom area missing value'), t('Subscriptions of type "Draw Area" require a polygon to be drawn onto the "Custom Area" map.'));
+                form_set_error(
+                    t('custom area missing value'),
+                    t('Subscriptions of type "Draw Area" require a polygon to be drawn onto the "Custom Area" map.')
+                );
             }
         }
     }
