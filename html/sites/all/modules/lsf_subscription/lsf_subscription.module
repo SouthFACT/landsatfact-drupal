@@ -82,29 +82,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
             }
         }
     }
-    //    $form['custom_request_node_form'] = array(
-    //        '#title'    => t('Phone'),
-    //        '#type'     => 'textfield',
-    //        '#required' => TRUE,
-    //    );
-//    form_set_error('time', t('An event may not end before it starts.'));
 }
-
-// function lsf_subscription_form_custom_request_node_form_alter(&$form, $form_state, $form_id)
-// {
-    // drupal_set_message('The form is being submitted, do some extra stuff now...');  
-    // if($form_id == 'custom_request_node_form')
-    // {
-        // $form['#submit'][] = "lsf_subscription_form_submit_handler";
-    // }
-// }
-
-// function lsf_subscription_form_submit_handler($form, &$form_state)
-// {
-    // drupal_set_message('The form is being submitted, do some extra stuff now...');
-// }
-
-
 
 // Implements hook_node_insert
 //
