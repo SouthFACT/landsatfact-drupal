@@ -169,14 +169,8 @@ function lsf_subscription_node_delete($node) {
 //
 // @param array $node New node object that is being created
 function insert_subscription_aoi_by_county($node) {
-    $county_geoid = '';
-    // We do not know which field_*_counties was set, so this will loop over all fields and find which one has a value
-    foreach ($node as $key => $value) {
-        if (strpos($key, 'counties') !== FALSE) {
-            $county_geoid = $value['und'][0]['value'];
-            break;
-        }
-    }	
+    $state_counties = 'field_' . strtolower($node->field_state[LANGUAGE_NONE][0]['value']) . '_counties';
+    $county_geoid = $node->{$state_counties}[LANGUAGE_NONE][0]['value'];
 
     _lsf_subscription_set_database_connection();
 
@@ -202,17 +196,8 @@ function insert_subscription_aoi_by_county($node) {
 //
 // @param array $node New node object that is being created
 function _lsf_subscription_update_aoi_by_county($node) {
-    $county_geoid = '';
-    // We do not know which field_*_counties was set, so this will loop over all fields and find which one has a value
-    foreach ($node as $key => $value) {
-        if (strpos($key, 'counties') !== FALSE) {
-            if (!isset($value[LANGUAGE_NONE])) {
-                continue;
-            }
-            $county_geoid = $value[LANGUAGE_NONE][0]['value'];
-            break;
-        }
-    }	
+    $state_counties = 'field_' . strtolower($node->field_state[LANGUAGE_NONE][0]['value']) . '_counties';
+    $county_geoid = $node->{$state_counties}[LANGUAGE_NONE][0]['value'];
 
     _lsf_subscription_set_database_connection();
 
