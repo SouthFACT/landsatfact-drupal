@@ -25,7 +25,7 @@ function _lsf_subscription_set_database_connection() {
 
 // Implements hook_node_validate
 function lsf_subscription_node_validate($node, $form, &$form_state) {
-    //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
+    //    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/form.log', print_r($form,TRUE));
     //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($form_state,TRUE));
 
@@ -37,6 +37,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
                     t('Invalid Zip in area shapefile'),
                     t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
                 );
+                return;
             }
 
             $zip = file_load($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']);
@@ -50,6 +51,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
                     t('Invalid Zip in area shapefile'),
                     t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
                 );
+                return;
             }
 
             $target_directory = (string) $zip->fid . '_' . str_replace('.zip', '', $zip->filename);
@@ -70,6 +72,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
                     t('Invalid shapefile in area shapefile'),
                     t('There is an error in your shapefile. Please verify your data and try again.')
                 );
+                return;
             } else if (trim($check_projection) === 'FALSE') {
                 shell_exec($python_path . 'reprojectShp.py ' . $shapefile);
             }
@@ -82,6 +85,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
                     t('Invalid shapefile in area shapefile'),
                     t('There is an error in your shapefile. Please verify your data and try again.')
                 );
+                return;
             } else if ((int) $check_vertices > 10000) {
                 shell_exec($python_path . 'simplifyShp.py ' . $shapefile);
             }
@@ -96,6 +100,24 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
                     t('custom area missing value'),
                     t('Subscriptions of type "Draw Area" require a polygon to be drawn onto the "Custom Area" map.')
                 );
+                return;
+            }
+        } else if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'select_county') {
+            $state = strtolower($node->field_state[LANGUAGE_NONE][0]['value']);
+            if ($state === '') {
+                form_set_error(
+                    t('select county missing data'),
+                    t('Subscriptions of type "Select County" require both a state and county to be chosen.')
+                );
+                return;
+            }
+            $county = 'field_' . $state . '_counties';
+            if (!isset($node->{$county}[LANGUAGE_NONE][0]) || !isset($node->{$county}[LANGUAGE_NONE][0]['value']) || $node->{$county}[LANGUAGE_NONE][0]['value'] === '') {
+                form_set_error(
+                    t('select county missing data'),
+                    t('Subscriptions of type "Select County" require both a state and county to be chosen.')
+                );
+                return;
             }
         }
     }
