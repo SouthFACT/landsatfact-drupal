@@ -60,8 +60,11 @@ def validTar(inTar):
     else:
         return 'Invalid tar'
 
-def removeZip(inTar):
+def removeTar(inTar):
     os.remove(inTar)
+
+def removeZip(inZip):
+    os.remove(inZipip)
 
 def checkSpatialRef(inShp):
     driver = ogr.GetDriverByName("ESRI Shapefile")
@@ -157,8 +160,6 @@ def geoJSONToShp(inJSON):
     poly= ogr.CreateGeometryFromJson(inJSON)
     # create a new shapefile to insert the new geometry into
     # https://pcjericks.github.io/py-gdalogr-cookbook/vector_layers.html#create-a-new-shapefile-and-add-data
-#    import pdb
-#    pdb.set_trace()
     driver = ogr.GetDriverByName('ESRI Shapefile')
     tmp_dir = '/var/vsites/landsatfact-dev.nemac.org/project/html/sites/all/modules/lsf_subscription/cgi-bin/shp_tmp/'
 #    tmp_dir=r'H:\SPA_Secure\Geospatial\LandsatFACT\code\reduce\shapes'
@@ -246,4 +247,5 @@ def shpToPostGIS(inShp):
     else:
         results=err
     return results
+
 
