@@ -35,7 +35,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
             if (!isset($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']) || $node->field_area_shapefile[LANGUAGE_NONE][0]['fid'] === 0) {
                 form_set_error(
                     t('Invalid Zip in area shapefile'),
-                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
+                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx, .prj and .dbf files.')
                 );
                 return;
             }
@@ -49,7 +49,7 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
             if (trim($check_zip) !== 'Zip is complete') {
                 form_set_error(
                     t('Invalid Zip in area shapefile'),
-                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx and .dbf files.')
+                    t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx, .prj and .dbf files.')
                 );
                 return;
             }
