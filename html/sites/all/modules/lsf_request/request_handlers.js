@@ -26,7 +26,6 @@
 	    },
 	    success : function (result) {
 		geojson = result["get_countybygeoid"];
-		console.log(geojson);
 		xhr = undefined;
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -65,8 +64,67 @@
 		"day" : day
 	    },
 	    success : function (result) {
-		console.log("done");
 		console.log(result);
+		var scene;
+		var i;
+		var $input_fields = $("#field-initial-scene-values .form-text");
+		var $input_field;
+		console.log($input_fields);
+		for (i = 0; i < result.length; i++) {
+		    scene = result[i];
+		    $input_field = $($input_fields[i]);
+		    $input_field.val(scene.scene_id);
+		    $("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px;'>").insertBefore($input_field);
+		}
+	    },
+	    error : function (jqXHR, textStatus, errorThrown) {
+		console.log("ERROR");
+		console.log(jqXHR);
+		console.log(textStatus);
+		console.log(errorThrown);
+	    }
+	});	
+    }
+
+    function get_end_scenes () {
+	var year = $("#edit-field-end-date-und-0-value-year").val();
+	var month = $("#edit-field-end-date-und-0-value-month").val();
+	var day = $("#edit-field-end-date-und-0-value-day").val();
+	if (!geojson || !year || !month || !day) {
+	    return;
+	}
+
+	if (month.length === 1) {
+	    month = "0" + month;
+	}
+
+	if (day.length === 1) {
+	    day = "0" + day;
+	}
+
+	$.ajax({
+	    type : "POST",
+	    url  : "/custom-request/ajax",
+	    data : {
+		"type"  : "wrs2_request",
+		"geojson" : geojson,
+		"year" : year,
+		"month" : month,
+		"day" : day
+	    },
+	    success : function (result) {
+		console.log(result);
+		var scene;
+		var i;
+		var $input_fields = $("#field-end-scene-values .form-text");
+		var $input_field;
+		console.log($input_fields);
+		for (i = 0; i < result.length; i++) {
+		    scene = result[i];
+		    $input_field = $($input_fields[i]);
+		    $input_field.val(scene.scene_id);
+		    $("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px;'>").insertBefore($input_field);
+		}
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
 		console.log("ERROR");
@@ -95,5 +153,9 @@
 	$("#edit-field-select-dates-und-0-value-year").on("change", get_initial_scenes);
 	$("#edit-field-select-dates-und-0-value-month").on("change", get_initial_scenes);
 	$("#edit-field-select-dates-und-0-value-day").on("change", get_initial_scenes);
+
+	$("#edit-field-end-date-und-0-value-year").on("change", get_end_scenes);
+	$("#edit-field-end-date-und-0-value-month").on("change", get_end_scenes);
+	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
     });
 }());

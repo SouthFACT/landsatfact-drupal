@@ -49,11 +49,17 @@ function _lsf_request_county_geoid($geoid) {
  */
 function _lsf_request_scenes_by_geojson_date($geojson, $year, $month, $day) {
     try {
+        geophp_load();
+        $geom = geophp::load($geojson);
+        $geojson_writer = new GeoJSON();
         _lsf_request_set_database_connection();
-        $result = db_query('SELECT * FROM get_scenesMostRecent(\'' . $geojson . '\', :date)', array(
-            //            ':geojson' => (string) $geojson,
-            ':date' => $year . '-' . $month . '-' . $day,
-        ));
+        $date = $year . '-' . $month . '-' . $day;
+
+        $result = db_query('SELECT * FROM get_scenesMostRecent(:geojson, :date)', array(
+            ':geojson' => $geojson_writer->write($geom),
+            ':date' => $date
+        ))->fetchAll();
+
         db_set_active();
         return $result;
     } catch (Exception $e) {
