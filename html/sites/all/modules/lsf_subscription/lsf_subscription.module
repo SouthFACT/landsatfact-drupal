@@ -248,7 +248,7 @@ function insert_subscription_aoi_by_shape($node) {
     _lsf_subscription_set_database_connection();
     
     try {
-        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson2(:nid, :uid, :title, :type, :geojson)',
+        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson(:nid, :uid, :title, :type, :geojson)',
                            array(
                                ':nid' => $node->nid,
                                ':uid' => $node->uid,
@@ -299,7 +299,7 @@ function insert_subscription_aoi_by_map($node) {
     _lsf_subscription_set_database_connection();
     
     try {
-        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson2(:nid, :uid, :title, :type, :geojson)',
+        $result = db_query('SELECT * FROM insert_user_aoi_by_geojson(:nid, :uid, :title, :type, :geojson)',
                            array(
                                ':nid' => $node->nid,
                                ':uid' => $node->uid,
