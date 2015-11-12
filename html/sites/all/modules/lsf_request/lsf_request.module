@@ -45,16 +45,8 @@ function lsf_request_menu() {
  */
 function lsf_request_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id === 'custom_request_node_form') {
-        dsm("test");
-        /*
-        if (!array_key_exists('js', $form['#attached'])) {
-            $form['#attached']['js'] = array();
-        }
-        */
         $form['#attached']['js'] = array(drupal_get_path('module', 'lsf_request') . '/request_handlers.js');
     }
-        //    dsm($form);
-        //    dsm($form_id);
 }
 
 // Implements hook_node_submit
@@ -167,3 +159,50 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
     //        '#required' => TRUE,
     //    );
 //    form_set_error('time', t('An event may not end before it starts.'));
+
+// Implements hook_node_insert
+//
+// @param array node
+function lsf_request_node_insert($node) {
+    if ($node->type === 'custom_request') {
+        $account  = user_load($node->uid);
+        geophp_load();
+        $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
+        $geojson_writer = new GeoJSON();
+        _lsf_request_set_database_connection();
+
+        try {
+            $result = db_query('SELECT * FROM insert_user_aoi_by_geojson(:nid, :uid, :title, :type, :geojson)',
+                               array(
+                                   ':nid' => $node->nid,
+                                   ':uid' => $node->uid,
+                                   ':title' => $node->title,
+                                   ':type' => $node->type,
+                                   ':geojson' => $geojson_writer->write($geom),
+                               ));            
+
+            $aoi = db_query('SELECT * FROM get_aoi_id_by_nodeid(:nid)', array (
+                ':nid' => $node->nid,
+            ))->fetch();
+
+            $scene_ids = array();
+
+            foreach ($node->field_initial_scene[LANGUAGE_NONE] as $scene) {
+                $scene_ids[] = $scene['value'];
+            }
+            foreach ($node->field_end_scene[LANGUAGE_NONE] as $scene) {
+                $scene_ids[] = $scene['value'];
+            }
+
+            db_query('SELECT * FROM initiate_custom_request(:aoi,:uid,:scenes)', array(
+                ':aoi' => $aoi->get_aoi_id_by_nodeid,
+                ':uid' => $account->name,
+                ':scenes' => join(',', $scene_ids),
+            ));
+        } catch (Exception $e) {
+            db_set_active();
+            drupal_set_message('Exception: ' . $e);
+        }
+        db_set_active();
+    }
+}

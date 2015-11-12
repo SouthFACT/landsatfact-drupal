@@ -26,6 +26,7 @@
 	    },
 	    success : function (result) {
 		geojson = result["get_countybygeoid"];
+		$("#edit-field-area-geojson-und-0-geom").val(geojson);
 		xhr = undefined;
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -64,17 +65,21 @@
 		"day" : day
 	    },
 	    success : function (result) {
-		console.log(result);
 		var scene;
 		var i;
 		var $input_fields = $("#field-initial-scene-values .form-text");
 		var $input_field;
-		console.log($input_fields);
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
 		    $input_field = $($input_fields[i]);
 		    $input_field.val(scene.scene_id);
-		    $("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px;'>").insertBefore($input_field);
+		    if ($input_field.siblings("img").length === 0) {
+			$("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px; display: block;'>")
+			    .insertBefore($input_field)
+			    .click(get_initial_alternate_scenes);
+		    } else {
+			$input_field.siblings("img").attr("src", scene.browse_url);
+		    }
 		}
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -113,17 +118,21 @@
 		"day" : day
 	    },
 	    success : function (result) {
-		console.log(result);
 		var scene;
 		var i;
 		var $input_fields = $("#field-end-scene-values .form-text");
 		var $input_field;
-		console.log($input_fields);
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
 		    $input_field = $($input_fields[i]);
 		    $input_field.val(scene.scene_id);
-		    $("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px;'>").insertBefore($input_field);
+		    if ($input_field.siblings("img").length === 0) {
+			$("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px; display: block;'>")
+			    .insertBefore($input_field)
+			    .click(get_end_alternate_scenes);
+		    } else {
+			$input_field.siblings("img").attr("src", scene.browse_url);
+		    }
 		}
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -133,6 +142,203 @@
 		console.log(errorThrown);
 	    }
 	});	
+    }
+
+    function get_wrs2_from_scene (scene) {
+	return scene.substring(3, 9);
+    }
+
+    function get_date_from_scene (scene) {
+	return scene.substring(9, 16);
+    }
+
+    /**
+     * Performs a binary search on the list of scenes to find the index of a scene with
+     * a particular date.
+     */
+    function find_current_scene_index (scenes, current_date) {
+	var min = 0,
+            max = scenes.length - 1,
+	    mid, date;
+      
+	for (;;) {
+            // does a linear search if the list is small enough
+            if (min + 11 > max) {
+		var i;
+		for (i = min; i <= max; i++) {
+                    if (current_date === get_date_from_scene(scenes[i].scene_id)) {
+			return i;
+                    }
+		}
+
+		return -1;
+	    }
+
+	    // gets midpoint by doing a bitshift 1 bit to the right. Equivalent to Math.floor((min + max) / 2)
+            mid = (min + max) >> 1;
+            date = get_date_from_scene(scenes[mid].scene_id);
+            if (current_date === date) {
+		return mid;
+            } else if (current_date > date) {
+		min = mid + 1;
+            } else {
+		max = mid - 1;
+            }
+	}
+    }
+
+    function get_initial_alternate_scenes () {
+	var year = $("#edit-field-select-dates-und-0-value-year").val();
+	var month = $("#edit-field-select-dates-und-0-value-month").val();
+	var day = $("#edit-field-select-dates-und-0-value-day").val();
+
+	var $parent = $(this).parent();
+	var $input = $(this).siblings("input"); 
+	var scene = $input.val();
+	var wrs2 = get_wrs2_from_scene(scene);
+	
+	if (!wrs2 || !year || !month || !day) {
+	    return;
+	}
+
+	if (month.length === 1) {
+	    month = "0" + month;
+	}
+
+	if (day.length === 1) {
+	    day = "0" + day;
+	}
+
+	$.ajax({
+	    type : "POST",
+	    url  : "/custom-request/ajax",
+	    data : {
+		"type" : "alternate_images",
+		"wrs" : wrs2,
+		"year" : year,
+		"month" : month,
+		"day" : day
+	    },
+	    success : function (result) {
+		var scene_date = get_date_from_scene(scene);
+		var current_index = find_current_scene_index(result, scene_date);
+		var current_image = create_alternate_image_container(result[current_index], $input);
+		var prev_image, next_image;
+		if (result[current_index - 1]) {
+		    prev_image = create_alternate_image_container(result[current_index - 1], $input);
+		}
+		if (result[current_index + 1]) {
+		    next_image = create_alternate_image_container(result[current_index + 1], $input);
+		}
+
+		var alt_img_container = $("<div></div>");
+		if (prev_image) alt_img_container.append(prev_image);
+		alt_img_container.append(current_image);
+		if (next_image) alt_img_container.append(next_image);
+
+		if ($input.siblings("div").length === 0) {
+		    $parent.append(alt_img_container);
+		} else {
+		    $input.siblings("div").replaceWith(alt_img_container);
+		}
+	    },
+	    error : function (jqXHR, textStatus, errorThrown) {
+		console.log("ERROR");
+		console.log(jqXHR);
+		console.log(textStatus);
+		console.log(errorThrown);
+	    }
+	});
+    }
+
+    function get_end_alternate_scenes () {
+	var year = $("#edit-field-end-date-und-0-value-year").val();
+	var month = $("#edit-field-end-date-und-0-value-month").val();
+	var day = $("#edit-field-end-date-und-0-value-day").val();
+
+	var $parent = $(this).parent();
+	var $input = $(this).siblings("input"); 
+	var scene = $input.val();
+	var wrs2 = get_wrs2_from_scene(scene);
+	
+	if (!wrs2 || !year || !month || !day) {
+	    return;
+	}
+
+	if (month.length === 1) {
+	    month = "0" + month;
+	}
+
+	if (day.length === 1) {
+	    day = "0" + day;
+	}
+
+	$.ajax({
+	    type : "POST",
+	    url  : "/custom-request/ajax",
+	    data : {
+		"type" : "alternate_images",
+		"wrs" : wrs2,
+		"year" : year,
+		"month" : month,
+		"day" : day
+	    },
+	    success : function (result) {
+		var scene_date = get_date_from_scene(scene);
+		var current_index = find_current_scene_index(result, scene_date);
+		var current_image = create_alternate_image_container(result[current_index], $input);
+		var prev_image, next_image;
+		if (result[current_index - 1]) {
+		    prev_image = create_alternate_image_container(result[current_index - 1], $input);
+		}
+		if (result[current_index + 1]) {
+		    next_image = create_alternate_image_container(result[current_index + 1], $input);
+		}
+
+		var alt_img_container = $("<div></div>");
+		if (prev_image) alt_img_container.append(prev_image);
+		alt_img_container.append(current_image);
+		if (next_image) alt_img_container.append(next_image);
+
+		if ($input.siblings("div").length === 0) {
+		    $parent.append(alt_img_container);
+		} else {
+		    $input.siblings("div").replaceWith(alt_img_container);
+		}
+	    },
+	    error : function (jqXHR, textStatus, errorThrown) {
+		console.log("ERROR");
+		console.log(jqXHR);
+		console.log(textStatus);
+		console.log(errorThrown);
+	    }
+	});
+    }
+
+    function create_alternate_image_container (scene, $input) {
+	var $container = $("<div></div>").data("id", scene.scene_id)
+	    .hover(function () {
+		$(this).css("background-color", "rgba(0,0,0,.2)")
+		    .css("cursor", "pointer");
+	    }, function () {
+		$(this).css("background-color", "rgba(0,0,0,0)");
+	    })
+	    .css("display", "inline-block").css("margin-right", "10px").css("padding", "10px").css("border-radius", "1em");
+	$container.append($("<img/>").attr("src", scene.browse_url).css({
+	    "display": "block",
+	    "height": "200px",
+	    "width": "200px"
+	}));
+	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>ID</span>: " + scene.scene_id + "</p>"));
+	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Date</span>: " + scene.acquistion_date + "</p>"));
+	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
+	$container.click(function () {
+	    $input.val(scene.scene_id);
+	    $input.siblings("img").attr("src", scene.browse_url);
+	    $container.parent().remove();
+	});
+
+	return $container;
     }
 
     $(document).ready(function () {
