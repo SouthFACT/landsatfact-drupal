@@ -18,8 +18,10 @@ path.aoi {
 
 .field-name-field-initial-scene .field-multiple-drag,
 .field-name-field-initial-scene .tabledrag-toggle-weight-wrapper,
+.field-name-field-initial-scene input,
 .field-name-field-end-scene .field-multiple-drag,
-.field-name-field-end-scene .tabledrag-toggle-weight-wrapper {
+.field-name-field-end-scene .tabledrag-toggle-weight-wrapper,
+.field-name-field-end-scene input {
     display: none;
 }
 

@@ -119,12 +119,13 @@
 		    scene = result[i];
 		    $input_field = $($input_fields[i]);
 		    $input_field.val(scene.scene_id);
-		    if ($input_field.siblings("div").length === 0) {
+		    if ($input_field.siblings(".scene-container").length === 0) {
 			container = create_scene_container(scene)
-			container.insertBefore($input_field)
+			container.addClass("scene-container")
+			    .insertBefore($input_field)
 			    .click(alternate_handler);
 		    } else {
-			$input_field.siblings("div").children("img").attr("src", scene.browse_url);
+			$input_field.siblings(".scene-container").children("img").attr("src", scene.browse_url);
 		    }
 		}
 	    },
@@ -193,10 +194,6 @@
     }
 
     function populate_alternate_scenes (date, elem) {
-	var year = $("#edit-field-end-date-und-0-value-year").val();
-	var month = $("#edit-field-end-date-und-0-value-month").val();
-	var day = $("#edit-field-end-date-und-0-value-day").val();
-
 	var year = date.year;
 	var month = date.month;
 	var day = date.day;
@@ -240,15 +237,15 @@
 		    next_image = create_alternate_image_container(result[current_index + 1], $input);
 		}
 
-		var alt_img_container = $("<div></div>");
+		var alt_img_container = $("<div></div>").addClass("alt-container");
 		if (prev_image) alt_img_container.append(prev_image);
 		alt_img_container.append(current_image);
 		if (next_image) alt_img_container.append(next_image);
 
-		if ($input.siblings("div").length === 0) {
+		if ($input.siblings(".alt-container").length === 0) {
 		    $parent.append(alt_img_container);
 		} else {
-		    $input.siblings("div").replaceWith(alt_img_container);
+		    $input.siblings(".alt-container").replaceWith(alt_img_container);
 		}
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -289,7 +286,7 @@
 
 	$container.click(function () {
 	    $input.val(scene.scene_id);
-	    $input.siblings("img").attr("src", scene.browse_url);
+	    $input.siblings(".scene-container").html($container.html());
 	    $container.parent().remove();
 	});
 
