@@ -1,0 +1,17 @@
+path {
+    fill: none;
+    stroke: #777;
+}
+
+path.scene {
+    stroke: #333;
+}
+
+path.scene.active {
+    stroke: #ffa408;
+    fill: rgba(255, 164, 8, .2);
+}
+
+path.aoi {
+    stroke: #f52540;
+}

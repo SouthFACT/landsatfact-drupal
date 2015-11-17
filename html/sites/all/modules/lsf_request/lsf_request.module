@@ -45,7 +45,14 @@ function lsf_request_menu() {
  */
 function lsf_request_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id === 'custom_request_node_form') {
-        $form['#attached']['js'] = array(drupal_get_path('module', 'lsf_request') . '/request_handlers.js');
+        $lsf_request_path = drupal_get_path('module', 'lsf_request');
+        $form['#attached']['js'] = array(
+            $lsf_request_path . '/libs/d3.v3.min.js',
+            $lsf_request_path . '/request_handlers.js',
+        );
+        $form['#attached']['css'] = array(
+            $lsf_request_path . '/css/lsf_request.css',
+        );
     }
 }
 

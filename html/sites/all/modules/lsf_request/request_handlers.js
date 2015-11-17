@@ -9,6 +9,8 @@
     var xhr;
     var geojson;
 
+    var maps = {}
+
     /**
      * Handles any county select list being changed. Hits postgres to get geojson
      * of that counties boundry. Populates field_area_geojson once it has been
@@ -27,6 +29,7 @@
 	    success : function (result) {
 		geojson = result["get_countybygeoid"];
 		$("#edit-field-area-geojson-und-0-geom").val(geojson);
+		add_svg_aoi(geojson);
 		xhr = undefined;
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -106,6 +109,7 @@
 		"day" : day
 	    },
 	    success : function (result) {
+		console.log(result);
 		var scene;
 		var i;
 		var $input_fields = $(input_selector + " .form-text");
@@ -281,6 +285,73 @@
 	return $container;
     }
 
+    function add_svg_basemaps () {
+	var WIDTH_HEIGHT_RATIO = 4/7;
+
+	var $td = $("<td></td>").attr("colspan", "2").addClass("map-wrapper")
+	var $tr = $("<tr></tr>").append($td);
+
+	$("#field-initial-scene-values tbody")
+	    .prepend($tr);
+
+	var svg = d3.select("#field-initial-scene-values .map-wrapper").append("svg");
+
+	var $svg = $("#field-initial-scene-values svg");
+	$svg.css("width", "100%");
+
+	var width = parseInt($svg.width(), 10);
+	var height = Math.floor(width * WIDTH_HEIGHT_RATIO);
+
+	if (height > 400) {
+	    height = 400;
+	}
+
+	$svg.css("height", height + "px");
+	
+	var projection = d3.geo.mercator()
+            .center([-91, 32.5])
+            .scale(1275)
+	    .translate([width / 2, height / 2]);
+
+	var path = d3.geo.path()
+            .projection(projection);
+
+	d3.json("/sites/all/modules/lsf_request/geojson/lsf_states.json", function (json) {
+	    console.log(json);
+
+	    svg.insert("path", ":first-child")
+		.datum(json)
+		.attr("d", path);
+	});
+
+	maps.initial = svg
+    }
+
+    function add_svg_aoi (aoi) {
+	var $svg = $("#field-initial-scene-values svg");
+	var width = parseInt($svg.width(), 10);
+	var height = parseInt($svg.height(), 10);
+
+	var projection = d3.geo.mercator()
+            .center([-91, 32.5])
+            .scale(1275)
+	    .translate([width / 2, height / 2]);
+
+	var path = d3.geo.path()
+            .projection(projection);
+
+	var svg = d3.select("#field-initial-scene-values svg");
+
+	aoi = JSON.parse(aoi);
+        svg.append("path")
+	    .datum(aoi)
+	    .attr("d", path)
+	    .attr("class", "aoi");
+	
+//	console.log(svg);
+//	console.log(aoi);
+    }
+
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -303,5 +374,7 @@
 	$("#edit-field-end-date-und-0-value-year").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-month").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
+
+	add_svg_basemaps();
     });
 }());
