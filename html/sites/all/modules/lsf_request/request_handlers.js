@@ -110,6 +110,7 @@
 	    },
 	    success : function (result) {
 		console.log(result);
+		var container;
 		var scene;
 		var i;
 		var $input_fields = $(input_selector + " .form-text");
@@ -118,12 +119,12 @@
 		    scene = result[i];
 		    $input_field = $($input_fields[i]);
 		    $input_field.val(scene.scene_id);
-		    if ($input_field.siblings("img").length === 0) {
-			$("<img src='" + scene.browse_url + "' style='width: 200px; height: 200px; display: block;'>")
-			    .insertBefore($input_field)
+		    if ($input_field.siblings("div").length === 0) {
+			container = create_scene_container(scene)
+			container.insertBefore($input_field)
 			    .click(alternate_handler);
 		    } else {
-			$input_field.siblings("img").attr("src", scene.browse_url);
+			$input_field.siblings("div").children("img").attr("src", scene.browse_url);
 		    }
 		}
 	    },
@@ -259,23 +260,33 @@
 	});
     }
 
-    function create_alternate_image_container (scene, $input) {
+    function create_scene_container (scene) {
 	var $container = $("<div></div>").data("id", scene.scene_id)
-	    .hover(function () {
-		$(this).css("background-color", "rgba(0,0,0,.2)")
-		    .css("cursor", "pointer");
-	    }, function () {
-		$(this).css("background-color", "rgba(0,0,0,0)");
-	    })
-	    .css("display", "inline-block").css("margin-right", "10px").css("padding", "10px").css("border-radius", "1em");
 	$container.append($("<img/>").attr("src", scene.browse_url).css({
 	    "display": "block",
 	    "height": "200px",
-	    "width": "200px"
+	    "width": "200px",
+	    "margin-left": "auto",
+	    "margin-right": "auto"
 	}));
 	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>ID</span>: " + scene.scene_id + "</p>"));
 	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Date</span>: " + scene.acquistion_date + "</p>"));
 	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
+
+	return $container;
+    }
+
+    function create_alternate_image_container (scene, $input) {
+	var $container = create_scene_container(scene);
+
+	$container.hover(function () {
+	    $(this).css("background-color", "rgba(0,0,0,.2)")
+		.css("cursor", "pointer");
+	}, function () {
+	    $(this).css("background-color", "rgba(0,0,0,0)");
+	})
+	    .css("display", "inline-block").css("margin-right", "10px").css("padding", "10px").css("border-radius", "1em");
+
 	$container.click(function () {
 	    $input.val(scene.scene_id);
 	    $input.siblings("img").attr("src", scene.browse_url);
@@ -348,8 +359,73 @@
 	    .attr("d", path)
 	    .attr("class", "aoi");
 	
-//	console.log(svg);
-//	console.log(aoi);
+	$.ajax({
+	    type : "POST",
+	    url  : "/custom-request/ajax",
+	    data : {
+		"type" : "scene_json",
+		"geojson" : geojson
+	    },
+	    success : function (result) {
+		var $svg = $("#field-initial-scene-values svg");
+		var width = parseInt($svg.width(), 10);
+		var height = parseInt($svg.height(), 10);
+
+		var projection = d3.geo.mercator()
+		    .center([-91, 32.5])
+		    .scale(1275)
+		    .translate([width / 2, height / 2]);
+
+		var path = d3.geo.path()
+		    .projection(projection);
+
+		var svg = d3.select("#field-initial-scene-values svg");
+
+		var scene, i;
+		for (i = 0; i < result.length; i++) {
+		    scene = result[i];
+		    svg.insert("path", ":last-child")
+			.datum(JSON.parse(scene.geojson))
+			.attr("d", path)
+			.attr("id", "lsfscene-" + scene.wrs2_code)
+			.attr("class", "scene");
+		}
+	    },
+	    error : function (jqXHR, textStatus, errorThrown) {
+		console.log("ERROR");
+		console.log(jqXHR);
+		console.log(textStatus);
+		console.log(errorThrown);
+	    }
+	});	
+    }
+
+    function highlight_scene_enter_handler () {
+	var $this = $(this);
+	var scene_id = $this.find("input").val();
+	if (!scene_id) {
+	    return;
+	}
+
+	var wrs2 = get_wrs2_from_scene(scene_id);
+	var path = $("#lsfscene-" + wrs2)
+	path.insertBefore(path.siblings().last());
+
+	// jQuery's addClass does not work for svg elements
+	path.attr("class", "scene active");
+    }
+
+    function highlight_scene_exit_handler () {
+	var $this = $(this);
+	var scene_id = $this.find("input").val();
+	if (!scene_id) {
+	    return;
+	}
+
+	var wrs2 = get_wrs2_from_scene(scene_id);
+	var path = $("#lsfscene-" + wrs2)
+	
+	path.attr("class", "scene");
     }
 
     $(document).ready(function () {
@@ -376,5 +452,6 @@
 	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
 
 	add_svg_basemaps();
+	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
     });
 }());

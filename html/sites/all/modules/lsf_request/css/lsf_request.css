@@ -15,3 +15,71 @@ path.scene.active {
 path.aoi {
     stroke: #f52540;
 }
+
+.field-name-field-initial-scene .field-multiple-drag,
+.field-name-field-initial-scene .tabledrag-toggle-weight-wrapper,
+.field-name-field-end-scene .field-multiple-drag,
+.field-name-field-end-scene .tabledrag-toggle-weight-wrapper {
+    display: none;
+}
+
+.field-name-field-initial-scene .field-multiple-table th.field-label,
+.field-name-field-end-scene .field-multiple-table th.field-label {
+    padding-left: 7px;
+}
+
+.field-name-field-al-counties,
+.field-name-field-ar-counties,
+.field-name-field-fl-counties,
+.field-name-field-ga-counties,
+.field-name-field-ky-counties,
+.field-name-field-la-counties,
+.field-name-field-ms-counties,
+.field-name-field-nc-counties,
+.field-name-field-ok-counties,
+.field-name-field-sc-counties,
+.field-name-field-tn-counties,
+.field-name-field-tx-counties,
+.field-name-field-vs-counties {
+    display: none;
+}
+
+label[for="edit-field-initial-scene-und-0-value"],
+label[for="edit-field-end-scene-und-0-value"] {
+    display: none;
+}
+
+.field-name-field-initial-scene .table-striped .draggable,
+.field-name-field-end-scene .table-striped .draggable {
+    width: 25%;
+    min-height: 100%;
+    display: inline-block;
+    background-color: transparent;
+}
+
+#field-initial-scene-values td,
+#field-end-scene-values td {
+    background-color: transparent;
+    border-top: none;
+}
+
+.field-name-field-initial-scene tr:first-child td,
+.field-name-field-end-scene tr:first-child td {
+    border-bottom: 1px solid #dddddd;
+}
+
+.field-name-field-initial-scene tr,
+.field-name-field-end-scene tr {
+    border-right: 1px solid #dddddd;
+}
+
+.field-name-field-initial-scene tr:first-child,
+.field-name-field-end-scene tr:first-child {
+    border-right: none;
+}
+
+.field-name-field-initial-scene tr:last-child,
+.field-name-field-end-scene tr:last-child {
+    border-right: 1px solid #c1bb86;
+}
+
