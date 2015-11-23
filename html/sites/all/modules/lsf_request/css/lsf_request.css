@@ -1,3 +1,7 @@
+svg {
+    width: 100%;
+}
+
 path {
     fill: none;
     stroke: #777;
@@ -85,3 +89,6 @@ label[for="edit-field-end-scene-und-0-value"] {
     border-right: 1px solid #c1bb86;
 }
 
+.scene-container {
+    cursor: pointer;
+}

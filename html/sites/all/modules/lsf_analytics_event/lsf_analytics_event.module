@@ -1,0 +1,200 @@
+<?php
+/**
+ * @file
+ * Google Analytics Event Tracking Module API Example.
+ *
+ * Shows a quick and dirty example of how to integrate the Google Analytics
+ * Event Tracking Module into an user's module.
+ */
+
+/**
+ * Implements hook_google_analytics_et_settings_info().
+ */
+function lsf_analytics_event_google_analytics_et_settings_info() {
+  $settings = array();
+
+  $settings['debug'] = FALSE;
+
+  return $settings;
+}
+
+/**
+ * Implements hook_google_analytics_et_api().
+ */
+function lsf_analytics_event_google_analytics_et_api() {
+  return _lsf_analytics_event_set_selectors_array();
+}
+
+/**
+ * Internal function returns the example selectors array.
+ */
+function _lsf_analytics_event_set_selectors_array() {
+  $selectors = array();
+
+  $selectors = array(
+    array(
+      'event' => 'click',
+      'selector' => '.menu.nav.navbar-nav .leaf',
+      'category' => 'Nav Bar',
+      'action' => 'Click',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.ui-dialog-titlebar-close',
+      'category' => 'Disclaimer',
+      'action' => 'Click',
+      'label' => 'Close',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '#disclaimer_seen',
+      'category' => 'Disclaimer',
+      'action' => 'Click',
+      'label' => 'Dont Show Again',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.view.view-applications .field-content a',
+      'category' => 'Applications',
+      'action' => 'Click',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.page-user .tabs--primary.nav.nav-tabs a',
+      'category' => 'create and manage account',
+      'action' => 'Click Tab',
+      'label' => '!href',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'submit',
+      'selector' => '#user-profile-form #edit-actions .form-submit',
+      'category' => 'create and manage account',
+      'action' => 'Click',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.user-add-aoi p a',
+      'category' => 'Subscription',
+      'action' => 'Add',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '#block-views-user-areas-of-interest-block .view-user-areas-of-interest .views-row a',
+      'category' => 'Subscription',
+      'action' => 'Edit',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.node-type-subscription .nav-tabs a',
+      'category' => 'Subscription',
+      'action' => 'click Nav Bar',
+      'label' => '!href',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'focusout',
+      'selector' => '#subscription-node-form #edit-title',
+      'category' => 'Subscription',
+      'action' => 'Leave Title',
+      'label' => 'Edit Title',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#subscription-node-form #edit-field-area-type-und .form-type-radio',
+      'category' => 'Subscription',
+      'action' => 'Click Area Type',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#subscription-node-form #edit-submit',
+      'category' => 'Subscription',
+      'action' => 'submit',
+      'label' => 'save',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#subscription-node-form #edit-preview',
+      'category' => 'Subscription',
+      'action' => 'submit',
+      'label' => 'preview',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#subscription-node-form #edit-delete',
+      'category' => 'Subscription',
+      'action' => 'submit',
+      'label' => 'delete',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#custom-request-node-form #edit-field-area-type-und .form-type-radio',
+      'category' => 'Custom Request',
+      'action' => 'Click Area Type',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'focusout',
+      'selector' => '#custom-request-node-form #edit-title',
+      'category' => 'Custom Request',
+      'action' => 'Leave Title',
+      'label' => 'Edit Title',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#custom-request-node-form #edit-submit',
+      'category' => 'Custom Request',
+      'action' => 'submit',
+      'label' => 'save',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#custom-request-node-form #edit-preview',
+      'category' => 'Custom Request',
+      'action' => 'submit',
+      'label' => 'preview',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   )
+  );
+
+  return $selectors;
+}

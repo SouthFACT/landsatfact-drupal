@@ -42,8 +42,8 @@ function _lsf_splash_block_content() {
     drupal_add_css($module_path . '/jquery-ui-1.8.2.custom.css');
 
     $output = '<div id="disclaimer" title="Disclaimer">';
-    $output .= render($disclaimer_text);
     $output .= '<div class="disclaimer_accepted"><label for="disclaimer_seen">Do not show again</label><input id="disclaimer_seen" name="disclaimer_seen" type="checkbox"></div>';
+    $output .= render($disclaimer_text);
     $output .= '</div>';
 
     return $output;

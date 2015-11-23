@@ -9,7 +9,9 @@
     var xhr;
     var geojson;
 
-    var maps = {}
+    // caches selectors used for the svg scene maps
+    var initial_table_selector = "#field-initial-scene-values";
+    var end_table_selector = "#field-end-scene-values";
 
     /**
      * Handles any county select list being changed. Hits postgres to get geojson
@@ -294,19 +296,37 @@
     }
 
     function add_svg_basemaps () {
+	var initial_svg = create_svg_elem(initial_table_selector)
+	var end_svg = create_svg_elem(end_table_selector)
+
+	d3.json("/sites/all/modules/lsf_request/geojson/lsf_states.json", function (json) {
+	    var $svg = $(initial_table_selector + " svg");
+	    var width = parseInt($svg.width(), 10);
+	    var height = parseInt($svg.height(), 10);
+
+	    var path = generate_d3_geopath(width, height);
+
+	    initial_svg.insert("path", ":first-child")
+		.datum(json)
+		.attr("d", path);
+
+	    end_svg.insert("path", ":first-child")
+		.datum(json)
+		.attr("d", path);
+	});
+    }
+
+    function create_svg_elem (selector) {
 	var WIDTH_HEIGHT_RATIO = 4/7;
 
 	var $td = $("<td></td>").attr("colspan", "2").addClass("map-wrapper")
 	var $tr = $("<tr></tr>").append($td);
 
-	$("#field-initial-scene-values tbody")
-	    .prepend($tr);
+	$(selector + " tbody").prepend($tr);
 
-	var svg = d3.select("#field-initial-scene-values .map-wrapper").append("svg");
+	var svg = d3.select(selector + " .map-wrapper").append("svg");
 
-	var $svg = $("#field-initial-scene-values svg");
-	$svg.css("width", "100%");
-
+	var $svg = $(selector + " svg");
 	var width = parseInt($svg.width(), 10);
 	var height = Math.floor(width * WIDTH_HEIGHT_RATIO);
 
@@ -316,6 +336,10 @@
 
 	$svg.css("height", height + "px");
 	
+	return svg;
+    }
+
+    function generate_d3_geopath (width, height) {
 	var projection = d3.geo.mercator()
             .center([-91, 32.5])
             .scale(1275)
@@ -324,34 +348,26 @@
 	var path = d3.geo.path()
             .projection(projection);
 
-	d3.json("/sites/all/modules/lsf_request/geojson/lsf_states.json", function (json) {
-	    console.log(json);
-
-	    svg.insert("path", ":first-child")
-		.datum(json)
-		.attr("d", path);
-	});
-
-	maps.initial = svg
+	return path;
     }
 
     function add_svg_aoi (aoi) {
-	var $svg = $("#field-initial-scene-values svg");
+	var $svg = $(initial_table_selector + " svg");
 	var width = parseInt($svg.width(), 10);
 	var height = parseInt($svg.height(), 10);
 
-	var projection = d3.geo.mercator()
-            .center([-91, 32.5])
-            .scale(1275)
-	    .translate([width / 2, height / 2]);
+	var path = generate_d3_geopath(width, height);
 
-	var path = d3.geo.path()
-            .projection(projection);
-
-	var svg = d3.select("#field-initial-scene-values svg");
+	var initial_svg = d3.select(initial_table_selector + " svg");
+	var end_svg = d3.select(end_table_selector + " svg");
 
 	aoi = JSON.parse(aoi);
-        svg.append("path")
+        initial_svg.append("path")
+	    .datum(aoi)
+	    .attr("d", path)
+	    .attr("class", "aoi");
+	
+        end_svg.append("path")
 	    .datum(aoi)
 	    .attr("d", path)
 	    .attr("class", "aoi");
@@ -364,27 +380,27 @@
 		"geojson" : geojson
 	    },
 	    success : function (result) {
-		var $svg = $("#field-initial-scene-values svg");
+		var $svg = $(initial_table_selector + " svg");
 		var width = parseInt($svg.width(), 10);
 		var height = parseInt($svg.height(), 10);
 
-		var projection = d3.geo.mercator()
-		    .center([-91, 32.5])
-		    .scale(1275)
-		    .translate([width / 2, height / 2]);
+		var path = generate_d3_geopath(width, height);
 
-		var path = d3.geo.path()
-		    .projection(projection);
-
-		var svg = d3.select("#field-initial-scene-values svg");
+		var initial_svg = d3.select(initial_table_selector + " svg");
+		var end_svg = d3.select(end_table_selector + " svg");
 
 		var scene, i;
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
-		    svg.insert("path", ":last-child")
+		    initial_svg.insert("path", ":last-child")
 			.datum(JSON.parse(scene.geojson))
 			.attr("d", path)
-			.attr("id", "lsfscene-" + scene.wrs2_code)
+			.attr("scene", scene.wrs2_code)
+			.attr("class", "scene");
+		    end_svg.insert("path", ":last-child")
+			.datum(JSON.parse(scene.geojson))
+			.attr("d", path)
+			.attr("scene", scene.wrs2_code)
 			.attr("class", "scene");
 		}
 	    },
@@ -405,7 +421,7 @@
 	}
 
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var path = $("#lsfscene-" + wrs2)
+	var path = $this.closest("table").find(".scene[scene='" + wrs2 + "']");
 	path.insertBefore(path.siblings().last());
 
 	// jQuery's addClass does not work for svg elements
@@ -420,7 +436,7 @@
 	}
 
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var path = $("#lsfscene-" + wrs2)
+	var path = $this.closest("table").find(".scene[scene='" + wrs2 + "']");
 	
 	path.attr("class", "scene");
     }
@@ -450,5 +466,6 @@
 
 	add_svg_basemaps();
 	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
+	$("#field-end-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
     });
 }());
