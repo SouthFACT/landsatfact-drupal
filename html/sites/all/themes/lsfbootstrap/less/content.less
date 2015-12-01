@@ -33,6 +33,12 @@ body {
     }
 }
 
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Oswald', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+h5, .h5 {
+    font-size: @font-size-h5;
+}
 .region-content {
     h1, .h1 {
         color: @main-color;
@@ -58,11 +64,12 @@ body {
 }
 
 a, a:visited {
-    color: @main-text-color;
-    text-decoration: underline;
+    color: @link-color;
+    text-decoration: none;
 
-    &:hover {
-        color: @main-color;
+    &:hover, &:focus {
+        color: @link-hover-color;
+	text-decoration: underline;
     }
 }
 
@@ -145,5 +152,50 @@ body.toolbar-drawer {
             color: #fff;
             background-color: @main-color;
         }
+    }
+}
+
+.media {
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+.media-element-container img {
+    width: auto;
+}
+
+.media-half_left, .media-quarter_left {
+    float: left;
+    margin-right: 2em;
+}
+
+.media-half_right, .media-quarter_right {
+    float: right;
+    margin-left: 2em;
+}
+
+.media-half_left, .media-half_right {
+    max-width: 46%;
+}
+
+.media-quarter_left, .media-quarter_right {
+    max-width: 23%;
+}
+
+.field-name-field-caption {
+    font-size: 12px;
+}
+
+.media-full {
+    text-align: center;
+
+    .file-image {
+	display: inline-block;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+    .field-name-field-caption {
+	text-align: left;
     }
 }
