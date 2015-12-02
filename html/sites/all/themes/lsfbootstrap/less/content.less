@@ -36,9 +36,11 @@ body {
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: 'Oswald', "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 h5, .h5 {
     font-size: @font-size-h5;
 }
+
 .region-content {
     h1, .h1 {
         color: @main-color;
@@ -71,11 +73,6 @@ a, a:visited {
         color: @link-hover-color;
 	text-decoration: underline;
     }
-}
-
-img {
-    max-width: 100%;
-    height: auto;
 }
 
 .webform-component {
@@ -153,6 +150,15 @@ body.toolbar-drawer {
             background-color: @main-color;
         }
     }
+}
+
+
+/**
+ * Image stylings
+ */
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 .media {

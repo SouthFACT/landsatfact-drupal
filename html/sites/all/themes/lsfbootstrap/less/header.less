@@ -132,12 +132,6 @@
 
     .open > a {
         color: @secondary-accent;
-        background-color: transparent;
-
-        &:hover, &:focus {
-            color: @secondary-accent;
-            background-color: transparent;
-        }
 
         .caret, &:hover .caret, &:focus .caret {
             border-top-color: @secondary-accent;
@@ -166,15 +160,11 @@
 }
 
 @media (max-width: 905px) {
-    .navbar-collapse.collapse {
-        ul.menu {
-            margin-left: 0;
+    .navbar-collapse.collapse ul.menu {
+        margin-left: 0;
 
-            li {
-                a {
-                    font-size: 18px;
-                }
-            }
+        li a {
+            font-size: 18px;
         }
     }
 }
