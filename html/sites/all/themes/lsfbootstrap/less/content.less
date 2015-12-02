@@ -6,22 +6,23 @@ body, html {
     color: @main-text-color;
 }
 
-html {
+html, body {
     height: 100%;
-}
-
-body {
-    height: 99.5%;
-    margin-top: -195px;
-    margin-bottom: 199px;
 }
 
 .main-container {
+    min-height: 100%;
     height: 100%;
-    padding-top: 404px;
+    height: auto;
+    padding-top: 207px;
     padding-left: 0;
     padding-right: 0;
+    margin-bottom: -199px;
     background: @content-bg;
+
+    &:after {
+	height: 199px;
+    }
 
     > div {
         width: 100%;

@@ -73,7 +73,7 @@
  * @ingroup themeable
  */
 ?>
-<div class="wrapper">
+<div class="top-wrapper">
 <div class="header-wrapper">
   <header id="navbar" role="banner" class="<?php print $navbar_classes; ?>">
     <div class="container">
@@ -132,6 +132,7 @@
   <?php endif; ?>
 
 </div>
+</div>
 
 <div class="main-container container">
 
@@ -170,22 +171,10 @@
 
   </div>
 </div>
-<div class="push"></div>
-</div>
 
 <footer class="footer">
   <?php print render($page['sub_footer']); ?>
+  <?php print render($page['footer']); ?>
 </footer>
-<?php print render($page['footer']); ?>
 
-<?php /* ?>
-  <div id="disclaimer" title="Disclaimer">
-    <?php
-      $disclaimer_node = node_load(80);
-      $disclaimer_text = field_view_field('node', $disclaimer_node, 'body', array('label' => 'hidden'));
-      print render($disclaimer_text);
-     ?>
-  </div>
-  <?php drupal_add_library('system', 'ui.dialog'); ?>
-  <script src="<?php print drupal_get_path('module', 'lsf_splash') . '/lsf_splash.js'; ?>"></script>
-<?php */ ?>
+<?php ?>
