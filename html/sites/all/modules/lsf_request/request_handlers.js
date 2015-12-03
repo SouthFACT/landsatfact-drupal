@@ -32,6 +32,9 @@
 		geojson = result["get_countybygeoid"];
 		$("#edit-field-area-geojson-und-0-geom").val(geojson);
 		add_svg_aoi(geojson);
+
+		get_initial_scenes();
+		get_end_scenes();
 		xhr = undefined;
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -64,6 +67,8 @@
 	geojson = JSON.stringify(area_geojson);
 	$("#edit-field-area-geojson-und-0-geom").val(geojson);
 	add_svg_aoi(geojson);
+	get_initial_scenes();
+	get_end_scenes();
     }
 
     function get_initial_dates () {
@@ -140,6 +145,11 @@
 		var i;
 		var $input_fields = $(input_selector + " .form-text");
 		var $input_field;
+
+		$input_fields.val("");
+		$input_fields.siblings(".scene-container")
+		    .off("click", alternate_handler)
+		    .remove();
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
 		    $input_field = $($input_fields[i]);
@@ -384,6 +394,9 @@
 	var initial_svg = d3.select(initial_table_selector + " svg");
 	var end_svg = d3.select(end_table_selector + " svg");
 
+	initial_svg.selectAll(".aoi").remove();
+	end_svg.selectAll(".aoi").remove();
+
         aoi = JSON.parse(aoi);
         initial_svg.append("path")
 	    .datum(aoi)
@@ -411,6 +424,8 @@
 
 		var initial_svg = d3.select(initial_table_selector + " svg");
 		var end_svg = d3.select(end_table_selector + " svg");
+		initial_svg.selectAll(".scene").remove();
+		end_svg.selectAll(".scene").remove();
 
 		var scene, i;
 		for (i = 0; i < result.length; i++) {
