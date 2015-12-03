@@ -496,6 +496,11 @@
 	this.change();
     }
 
+    function add_draw_area_titles () {
+	$(".olControlDrawFeaturePolygonItemInactive").attr("title", "Draw area of interest");
+	$(".olControlModifyFeatureItemActive").attr("title", "Pan/Zoom");
+    }
+
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -523,6 +528,7 @@
 
 	add_svg_basemaps();
 	add_openlayers_change_listeners();
+	add_draw_area_titles();
 	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 	$("#field-end-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
     });
