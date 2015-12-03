@@ -46,10 +46,17 @@ function lsf_request_menu() {
 function lsf_request_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id === 'custom_request_node_form') {
         $lsf_request_path = drupal_get_path('module', 'lsf_request');
-        $form['#attached']['js'] = array(
-            $lsf_request_path . '/libs/d3.v3.min.js',
-            $lsf_request_path . '/request_handlers.js',
-        );
+        if (array_key_exists('js', $form['#attached']) && is_array($form['#attached']['js'])) {
+            $form['#attached']['js'][] = $lsf_request_path . '/libs/d3.v3.min.js';
+            $form['#attached']['js'][] = $lsf_request_path . '/libs/wellknown.js';
+            $form['#attached']['js'][] = $lsf_request_path . '/request_handlers.js';
+        } else {
+            $form['#attached']['js'] = array(
+                $lsf_request_path . '/libs/d3.v3.min.js',
+                $lsf_request_path . '/libs/wellknown.js',
+                $lsf_request_path . '/request_handlers.js',
+            );
+        }
         $form['#attached']['css'] = array(
             $lsf_request_path . '/css/lsf_request.css',
         );

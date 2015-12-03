@@ -43,6 +43,29 @@
 	});
     }
 
+    /**
+     * Handles any draw area map being changed. Hits postgres to get geojson
+     * of that counties boundry. Populates field_area_geojson once it has been
+     * returned.
+     */
+    function handle_draw_area_change () {
+	var area_wkt = $(this).val();
+	if (area_wkt === "") return;
+
+	if (xhr) {
+	    xhr.abort();
+	    xhr = undefined;
+	}
+
+	if (!wellknown) return;
+
+	var area_geojson = wellknown.parse(area_wkt);
+
+	geojson = JSON.stringify(area_geojson);
+	$("#edit-field-area-geojson-und-0-geom").val(geojson);
+	add_svg_aoi(geojson);
+    }
+
     function get_initial_dates () {
 	var year = $("#edit-field-select-dates-und-0-value-year").val();
 	var month = $("#edit-field-select-dates-und-0-value-month").val();
@@ -361,7 +384,7 @@
 	var initial_svg = d3.select(initial_table_selector + " svg");
 	var end_svg = d3.select(end_table_selector + " svg");
 
-	aoi = JSON.parse(aoi);
+        aoi = JSON.parse(aoi);
         initial_svg.append("path")
 	    .datum(aoi)
 	    .attr("d", path)
@@ -441,6 +464,23 @@
 	path.attr("class", "scene");
     }
 
+    function add_openlayers_change_listeners () {
+	var draw_area = $(".field-name-field-custom-area");
+	var map_selector = ".openlayers-map";
+	var layer_id = "openlayers_behavior_geofield";
+
+        var $wkt = draw_area.find('input.geofield_wkt');
+	var layer = draw_area.find(map_selector).data("openlayers").openlayers.getLayersBy("drupalID", layer_id)[0];
+
+	layer.events.register('featureadded', $wkt, openlayers_change_listener);
+        layer.events.register('featureremoved', $wkt, openlayers_change_listener);
+        layer.events.register('afterfeaturemodified', $wkt, openlayers_change_listener);
+    }
+
+    function openlayers_change_listener () {
+	this.change();
+    }
+
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -464,7 +504,10 @@
 	$("#edit-field-end-date-und-0-value-month").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
 
+	$(".geofield_wkt").on("change", handle_draw_area_change)
+
 	add_svg_basemaps();
+	add_openlayers_change_listeners();
 	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 	$("#field-end-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
     });

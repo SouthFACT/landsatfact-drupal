@@ -1,8 +1,10 @@
-svg {
+.field-name-field-initial-scene svg,
+.field-name-field-end-scene svg {
     width: 100%;
 }
 
-path {
+.field-name-field-initial-scene path,
+.field-name-field-end-scene path {
     fill: none;
     stroke: #777;
 }
