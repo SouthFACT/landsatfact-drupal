@@ -6,6 +6,11 @@
     &:hover .views-slideshow-controls-text {
         z-index: 100;
     }
+
+    @media only screen and (max-width: 768px) {
+	margin-left: -15px;
+	margin-right: -15px;
+    }
 }
 
 .views-slideshow-controls-top {
@@ -22,7 +27,7 @@
     z-index: -100;
 
     span {
-        width: 55px;
+        width: 100px;
         height: 100%;
         position: absolute;
         top: 0;
@@ -41,7 +46,11 @@
             background-repeat: no-repeat;
             background-size: 60px 60px;
 	    opacity: .88;
-	    top: 48%;
+	    top: 43%;
+
+	    @media only screen and (max-width: 480px) {
+		top: 30%;
+	    }
 	}
     }
 
@@ -115,6 +124,11 @@
 	background-color: #000;
 	background-color: rgba(0, 0, 0, .75);
         text-align: left;
+
+	@media only screen and (max-width: 480px) {
+	    position: relative;
+	    font-size: 14px;
+	}
     }
 }
 
@@ -136,6 +150,10 @@
             height: 100%;
             background-image: repeating-linear-gradient(180deg, transparent, transparent 16px, @secondary-accent 19px);
             content: ' ';
+
+	    @media only screen and (max-width: 768px) {
+		width: 25%;
+	    }
 	}
 
 	&:before {
@@ -190,22 +208,6 @@
         cursor: pointer;
     }
 
-    /* This view header code should be removed when the COMING SOON label is removed */
-    .view-header {
-        background-image: repeating-linear-gradient(180deg, transparent, transparent 20px, @gray-dark 23px);
-        text-align: center;
-        font-size: 30px;
-        text-transform: uppercase;
-        margin-bottom: .5em;
-
-        span {
-            background-color: @content-bg;
-            text-align: center;
-            padding-left: .5em;
-            padding-right: .5em;
-        }
-    }
-
     @media (max-width: 991px) {
         .views-row {
             width: 48%;
@@ -226,22 +228,8 @@
         }
 
         .views-field-title {
-            background:transparent;
-            text-align: left;
-
-            a {
-                color: @secondary-accent;
-            }
-
-            &:hover {
-                background: transparent;
-                cursor: pointer;
-
-                a {
-                    color: @main-color;
-                }
-            }
-        }
+            text-align: center;
+	}
 
         .views-field-body {
             text-align: left;
