@@ -339,6 +339,8 @@
 	}
 	alt_img_container.children("div").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 	alt_img_container.children("button").click(button_handler);
+	alt_img_container.children(".alt-prev-button").click(button_left_handler);
+	alt_img_container.children(".alt-next-button").click(button_right_handler);
     }
 
     function add_svg_basemaps () {
@@ -466,6 +468,92 @@
 
     function button_handler (e) {
 	e.preventDefault();
+    }
+
+    function button_left_handler (e) {
+	var $this = $(this);
+	var checkScene = $this.next();
+	var removeScene = $this.siblings("div").last();
+
+	var scene_id = checkScene.data("id");
+	var wrs2 = get_wrs2_from_scene(scene_id);
+	var possible_scenes = alt_scenes[wrs2];
+	var next_scene;
+	var i;
+
+	for (i = 0; i < possible_scenes.length; i++) {
+	    next_scene = possible_scenes[i];
+	    if (next_scene.scene_id === scene_id) {
+		next_scene = possible_scenes[i - 1];
+		var index = i - 1;
+		break;
+	    }
+	}
+
+	if (index === 0) return;
+
+	var $parent = $this.parents(".alt-container");
+	var possible_inputs = $parent.siblings(".draggable");
+	var $input;
+
+	for (i = 0; i < possible_inputs.length; i++) {
+	    $input = $(possible_inputs[i]).find("input");
+	    if (wrs2 === get_wrs2_from_scene($input.val())) break;
+	}
+
+	var next_scene_container = create_alternate_image_container(next_scene, $input);
+	next_scene_container.hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
+	checkScene.before(next_scene_container);
+	removeScene.remove();
+
+	if (index === 1) {
+	    $this.css("opacity", "0")
+	}
+
+	$this.siblings("button").css("opacity", "1");
+    }
+
+    function button_right_handler (e) {
+	var $this = $(this);
+	var checkScene = $this.prev();
+	var removeScene = $this.siblings("div").first();
+
+	var scene_id = checkScene.data("id");
+	var wrs2 = get_wrs2_from_scene(scene_id);
+	var possible_scenes = alt_scenes[wrs2];
+	var next_scene;
+	var i;
+
+	for (i = 0; i < possible_scenes.length; i++) {
+	    next_scene = possible_scenes[i];
+	    if (next_scene.scene_id === scene_id) {
+		next_scene = possible_scenes[i + 1];
+		var index = i + 1;
+		break;
+	    }
+	}
+
+	if (index === possible_scenes.length - 1) return;
+
+	var $parent = $this.parents(".alt-container");
+	var possible_inputs = $parent.siblings(".draggable");
+	var $input;
+
+	for (i = 0; i < possible_inputs.length; i++) {
+	    $input = $(possible_inputs[i]).find("input");
+	    if (wrs2 === get_wrs2_from_scene($input.val())) break;
+	}
+
+	var next_scene_container = create_alternate_image_container(next_scene, $input);
+	next_scene_container.hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
+	checkScene.after(next_scene_container);
+	removeScene.remove();
+
+	if (index === possible_scenes.length - 2) {
+	    $this.css("opacity", "0")
+	}
+
+	$this.siblings("button").css("opacity", "1");
     }
 
     function highlight_scene_enter_handler () {
