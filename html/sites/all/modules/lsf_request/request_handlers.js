@@ -4,10 +4,10 @@
 (function () {
     "use strict";
 
-    // caches jQuery
     var $ = $ || jQuery;
     var xhr;
     var geojson;
+    var alt_scenes = {}; // caches alternate scenes keyed by id.
 
     // caches selectors used for the svg scene maps
     var initial_table_selector = "#field-initial-scene-values";
@@ -242,6 +242,11 @@
 	    return;
 	}
 
+	if (alt_scenes[wrs2]) {
+	    create_alternate_image_block(scene, $input);
+	    return;
+	}
+
 	if (month.length === 1) {
 	    month = "0" + month;
 	}
@@ -261,27 +266,8 @@
 		"day" : day
 	    },
 	    success : function (result) {
-		var scene_date = get_date_from_scene(scene);
-		var current_index = find_current_scene_index(result, scene_date);
-		var current_image = create_alternate_image_container(result[current_index], $input);
-		var prev_image, next_image;
-		if (result[current_index - 1]) {
-		    prev_image = create_alternate_image_container(result[current_index - 1], $input);
-		}
-		if (result[current_index + 1]) {
-		    next_image = create_alternate_image_container(result[current_index + 1], $input);
-		}
-
-		var alt_img_container = $("<div></div>").addClass("alt-container");
-		if (prev_image) alt_img_container.append(prev_image);
-		alt_img_container.append(current_image);
-		if (next_image) alt_img_container.append(next_image);
-
-		if ($input.siblings(".alt-container").length === 0) {
-		    $parent.append(alt_img_container);
-		} else {
-		    $input.siblings(".alt-container").replaceWith(alt_img_container);
-		}
+		if (!alt_scenes[wrs2]) alt_scenes[wrs2] = result;
+		create_alternate_image_block(scene, $input);
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
 		console.log("ERROR");
@@ -293,32 +279,17 @@
     }
 
     function create_scene_container (scene) {
-	var $container = $("<div></div>").data("id", scene.scene_id)
-	$container.append($("<img/>").attr("src", scene.browse_url).css({
-	    "display": "block",
-	    "height": "200px",
-	    "width": "200px",
-	    "margin-left": "auto",
-	    "margin-right": "auto"
-	}));
-	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>ID</span>: " + scene.scene_id + "</p>"));
-	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Date</span>: " + scene.acquistion_date + "</p>"));
-	$container.append($("<p style='margin: 0;'><span style='font-weight: bold;'>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
+	var $container = $("<div></div>").addClass("scene-container").data("id", scene.scene_id);
+	$container.append($("<img/>").attr("src", scene.browse_url));
+	$container.append($("<p><span>ID</span>: " + scene.scene_id + "</p>"));
+	$container.append($("<p><span>Date</span>: " + scene.acquistion_date + "</p>"));
+	$container.append($("<p><span>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
 
 	return $container;
     }
 
     function create_alternate_image_container (scene, $input) {
 	var $container = create_scene_container(scene);
-
-	$container.hover(function () {
-	    $(this).css("background-color", "rgba(0,0,0,.2)")
-		.css("cursor", "pointer");
-	}, function () {
-	    $(this).css("background-color", "rgba(0,0,0,0)");
-	})
-	    .css("display", "inline-block").css("margin-right", "10px").css("padding", "10px").css("border-radius", "1em");
-
 	$container.click(function () {
 	    $input.val(scene.scene_id);
 	    $input.siblings(".scene-container").html($container.html());
@@ -326,6 +297,48 @@
 	});
 
 	return $container;
+    }
+
+    function create_alternate_image_block (scene, $input) {
+	var scene_date = get_date_from_scene(scene);
+	var wrs2 = get_wrs2_from_scene(scene);
+	var scene_list = alt_scenes[wrs2];
+	if (!scene_list) return;
+
+	var current_index = find_current_scene_index(scene_list, scene_date);
+	if (current_index === 0) current_index = 1;
+	if (current_index === scene_list.length - 1) current_index = scene_list.length - 2;
+
+	var current_image = create_alternate_image_container(scene_list[current_index], $input);
+	var prev_image, next_image;
+	if (scene_list[current_index - 1]) {
+	    prev_image = create_alternate_image_container(scene_list[current_index - 1], $input);
+	}
+	if (scene_list[current_index + 1]) {
+	    next_image = create_alternate_image_container(scene_list[current_index + 1], $input);
+	}
+
+	var alt_img_container = $("<tr></tr>").addClass("alt-container");
+	if (prev_image) alt_img_container.append(prev_image);
+	alt_img_container.append(current_image);
+	if (next_image) alt_img_container.append(next_image);
+
+	if (scene_list[current_index - 2]) {
+	    alt_img_container.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button"));
+	}
+	if (scene_list[current_index + 2]) {
+	    alt_img_container.append($("<button></button>").addClass("alt-next-button").addClass("alt-button"));
+	}
+
+	var $parent_container = $input.closest("tr");
+
+	if ($parent_container.siblings(".alt-container").length === 0) {
+	    $parent_container.siblings(":first-child").after(alt_img_container);
+	} else {
+	    $parent_container.siblings(".alt-container").replaceWith(alt_img_container);
+	}
+	alt_img_container.children("div").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
+	alt_img_container.children("button").click(button_handler);
     }
 
     function add_svg_basemaps () {
@@ -451,9 +464,18 @@
 	});	
     }
 
+    function button_handler (e) {
+	e.preventDefault();
+    }
+
     function highlight_scene_enter_handler () {
+	$("path.scene.active").attr("class", "scene");
+
 	var $this = $(this);
 	var scene_id = $this.find("input").val();
+	if (!scene_id) {
+	    scene_id = $this.data("id");
+	}
 	if (!scene_id) {
 	    return;
 	}
@@ -469,6 +491,9 @@
     function highlight_scene_exit_handler () {
 	var $this = $(this);
 	var scene_id = $this.find("input").val();
+	if (!scene_id) {
+	    scene_id = $this.data("id");
+	}
 	if (!scene_id) {
 	    return;
 	}
