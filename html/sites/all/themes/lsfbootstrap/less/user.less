@@ -1,0 +1,13 @@
+.field-name-field-first-name, .field-name-field-last-name {
+    display: inline-block;
+}
+
+.field-name-field-first-name {
+    > .field-items {
+	display: inline-block;
+    }
+
+    &:after {
+        content: '\00a0';
+    }
+}

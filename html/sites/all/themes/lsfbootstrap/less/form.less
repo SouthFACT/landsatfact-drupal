@@ -52,6 +52,59 @@
     }
 }
 
+.scene-container {
+    vertical-align: top;
+    display: inline-block;
+    margin-right: 10px;
+    border-radius: 1em;
+    cursor: pointer;
+    vertical-align: top;
+
+    &:hover {
+	background-color: rgba(0, 0, 0, .2);
+    }
+
+    p {
+	margin: 0;
+    }
+
+    span {
+	font-weight: bold;
+    }
+
+    img {
+	display: block;
+	height: 200px;
+	width: 200px;
+	margin-left: auto;
+	margin-right: auto;
+
+    }
+}
+
+.alt-container div {
+    padding: 10px;
+}
+
+.alt-button {
+    width: 200px;
+    height: 100%;
+    max-width: 12.5%;
+    border: none;
+    background-color: #333;
+    background-color: rgba(20,20,20,.5);
+    background-position: 50%;
+    background-repeat: no-repeat
+}
+
+.alt-prev-button {
+    background-image: url("../images/arrow_prev.png");
+}
+
+.alt-next-button {
+    background-image: url("../images/arrow_next.png");
+}
+
 .node-form {
     .field-name-field-area-geojson {
 	display: none;
