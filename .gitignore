@@ -1,2 +1,7 @@
 *~
 lsf_config.ini
+cr.log
+sub.log
+html/sites/all/modules/lsf_request/cr_pending.txt
+html/sites/all/modules/lsf_request/cr_pending2.txt
+html/sites/all/modules/lsf_request/cr_pending_error.log
