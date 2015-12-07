@@ -173,14 +173,19 @@ img {
 
 .media-element-container img {
     width: auto;
+    height: auto !important;
 }
 
-.media-half_left, .media-quarter_left {
+.media-full {
+    clear: both;
+}
+
+.media-half_left, .media-quarter_left, .media-custom_left {
     float: left;
     margin-right: 2em;
 }
 
-.media-half_right, .media-quarter_right {
+.media-half_right, .media-quarter_right, .media-custom_right {
     float: right;
     margin-left: 2em;
 }
