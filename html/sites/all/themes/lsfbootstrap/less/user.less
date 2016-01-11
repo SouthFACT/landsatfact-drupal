@@ -1,6 +1,8 @@
+.logged-in.page-user {
 .field-name-field-first-name, .field-name-field-last-name {
     display: inline-block;
 }
+
 
 .field-name-field-first-name {
     > .field-items {
@@ -10,4 +12,22 @@
     &:after {
         content: '\00a0';
     }
+}
+}
+
+.page-user-edit.page-user-edit-main {
+.field-name-field-first-name, .field-name-field-last-name {
+    display: block;
+}
+
+
+.field-name-field-first-name {
+    > .field-items {
+        display: block;
+    }
+
+    &:after {
+        content: '';
+    }
+}
 }
