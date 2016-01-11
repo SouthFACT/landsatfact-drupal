@@ -338,3 +338,12 @@ function _lsf_subscription_update_aoi_by_map($node) {
     // Sets the db back to the default one
     db_set_active();
 }	
+
+/**
+ * Implements hook_form_alter
+ */
+function lsf_subscription_form_alter(&$form, &$form_state, $form_id) {
+    if ($form_id === 'subscription_node_form') {
+        $form['actions']['submit']['#value'] = 'Submit';
+    }
+}
