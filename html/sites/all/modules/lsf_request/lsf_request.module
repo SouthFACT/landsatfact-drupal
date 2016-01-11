@@ -60,6 +60,7 @@ function lsf_request_form_alter(&$form, &$form_state, $form_id) {
         $form['#attached']['css'] = array(
             $lsf_request_path . '/css/lsf_request.css',
         );
+        $form['actions']['submit']['#value'] = 'Submit';
     }
 }
 
