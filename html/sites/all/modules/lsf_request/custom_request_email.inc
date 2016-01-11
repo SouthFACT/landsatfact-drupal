@@ -170,7 +170,7 @@ function _lsf_make_custom_request_email(){
       }
 
       //create email subject 
-      $subject = 'Landsat FACT cutsom request ' . $aoi_name . ' complete.';
+      $subject = 'Landsat FACT custom request complete. (' . $node_id .')';
      
       //creare email body - link to file on s3
       $body = 'Download your custom request data here:  https://s3.amazonaws.com/landsat-cr-products/' . $req;

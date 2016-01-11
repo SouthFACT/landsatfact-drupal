@@ -323,8 +323,8 @@
 	alt_img_container.append(current_image);
 	if (next_image) alt_img_container.append(next_image);
 
-	alt_img_container.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button"));
-	alt_img_container.append($("<button></button>").addClass("alt-next-button").addClass("alt-button"));
+	alt_img_container.prepend($("<button>&nbsp;</button>").addClass("alt-prev-button").addClass("alt-button").css("max-height", "100%").css("line-height", "281px"));
+	alt_img_container.append($("<button>&nbsp;</button>").addClass("alt-next-button").addClass("alt-button").css("max-height", "100%").css("line-height", "281px"));
 	if (current_index === 1) {
 	    alt_img_container.children("alt-prev-button").css("opacity", "1")
 	}
