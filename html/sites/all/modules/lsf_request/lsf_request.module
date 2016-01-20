@@ -61,6 +61,18 @@ function lsf_request_form_alter(&$form, &$form_state, $form_id) {
             $lsf_request_path . '/css/lsf_request.css',
         );
         $form['actions']['submit']['#value'] = 'Submit';
+        $form['actions']['submit']['#submit'][] = '_lsf_request_remove_message';
+    }
+}
+
+/**
+ * Removes default status message on custom request node submit
+ */
+function _lsf_request_remove_message(&$form, &$form_state) {
+    foreach ($_SESSION['messages']['status'] as $key => $value) {
+        if (strpos($value, 'Custom Request ') === 0) {
+            unset($_SESSION['messages']['status'][$key]);
+        }
     }
 }
 
