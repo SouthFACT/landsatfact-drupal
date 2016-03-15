@@ -171,9 +171,12 @@ function _lsf_make_custom_request_email(){
 
       //create email subject 
       $subject = 'Landsat FACT custom request complete. (' . $node_id .')';
+
+      // add 3 days to date
+      $expireDate=Date('l, F jS, Y', strtotime("+45 days"));
      
       //creare email body - link to file on s3
-      $body = 'Download your custom request data here:  https://s3.amazonaws.com/landsat-cr-products/' . $req;
+      $body = 'Download your custom request data here:  https://s3.amazonaws.com/landsat-cr-products/' . $req . PHP_EOL . 'Please note that this data link will expire on ' . $expireDate . '.';
       $comment = _lsf_subscription_generate_comment($user_id, $node_id,$subject, $body);
 
       //send CR email

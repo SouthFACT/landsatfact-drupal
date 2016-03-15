@@ -217,3 +217,41 @@ function lsf_request_node_insert($node) {
         db_set_active();
     }
 }
+
+// Implements hook_node_validate
+function lsf_request_node_validate($node) {
+    if ($node->type === 'custom_request') {
+      if ($node->field_area_type['und'][0]['value']=='draw_area') {
+        geophp_load();
+        $geom = geophp::load($node->field_custom_area[LANGUAGE_NONE][0]['geom']);
+        $geojson_writer = new GeoJSON();
+        $geoj = $geojson_writer->write($geom);
+
+          _lsf_subscription_set_database_connection();
+
+          try {
+              $result = db_query('SELECT is_validSceneIntersects::text as valid  FROM is_validSceneIntersects(:geojson,4)',
+                                 array(
+                                     ':geojson' => $geojson_writer->write($geom)
+                                 ))->fetch();
+
+               $isvalid = $result->valid;
+               if($isvalid==='false'){
+                     form_set_error(
+                         t('Invalid Area'),
+                         t('The area of interest you have selected crosses too many scenes.  Currently, we can only process an area of interest that cross 4 or fewer scenes.  Please select a smaller area of interest and try again.  Thanks!')
+                     );
+                           db_set_active();
+                     return;
+               }
+          } catch (Exception $e) {
+              // Sets the db back to the default one
+              db_set_active();
+              drupal_set_message('Exception: ' . $e);
+          }
+
+          // Sets the db back to the default one
+          db_set_active();
+      }
+    }
+}
