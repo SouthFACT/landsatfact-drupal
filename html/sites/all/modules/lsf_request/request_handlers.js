@@ -323,8 +323,8 @@
 	alt_img_container.append(current_image);
 	if (next_image) alt_img_container.append(next_image);
 
-	alt_img_container.prepend($("<button>&nbsp;</button>").addClass("alt-prev-button").addClass("alt-button").css("max-height", "100%").css("line-height", "281px"));
-	alt_img_container.append($("<button>&nbsp;</button>").addClass("alt-next-button").addClass("alt-button").css("max-height", "100%").css("line-height", "281px"));
+	alt_img_container.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button"));
+	alt_img_container.append($("<button></button>").addClass("alt-next-button").addClass("alt-button"));
 	if (current_index === 1) {
 	    alt_img_container.children("alt-prev-button").css("opacity", "1")
 	}
@@ -616,6 +616,45 @@
 	$(".olControlModifyFeatureItemActive").attr("title", "Pan/Zoom");
     }
 
+    function clearAOISVG(){
+
+      var initial_svg = d3.select(initial_table_selector + " svg");
+      var end_svg = d3.select(end_table_selector + " svg");
+
+      initial_svg.selectAll(".aoi").remove();
+      end_svg.selectAll(".aoi").remove();
+    }
+
+    function clearSceneSVG(){
+
+      var initial_svg = d3.select(initial_table_selector + " svg");
+      var end_svg = d3.select(end_table_selector + " svg");
+
+      initial_svg.selectAll(".scene").remove();
+      end_svg.selectAll(".scene").remove();
+
+    } 
+
+    function deleteShapes() {
+      var draw_area = $(".field-name-field-custom-area");
+      var map_selector = ".openlayers-map";
+      var layer_id = "openlayers_behavior_geofield";
+    
+      var layer = draw_area.find(map_selector).data("openlayers").openlayers.getLayersBy("drupalID", layer_id)[0];
+    
+      //clear all
+      layer.removeAllFeatures();
+      layer.destroyFeatures();
+      layer.addFeatures([]);
+
+      $("#edit-field-area-geojson-und-0-geom").val ('');
+      //force change
+      $("#edit-field-area-geojson-und-0-geom").change();    
+
+      clearAOISVG();
+      clearSceneSVG();
+    };
+
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -639,6 +678,8 @@
 	$("#edit-field-end-date-und-0-value-month").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
 
+        $("li#deleteShapes").on('click',deleteShapes);
+
 	$(".geofield_wkt").on("change", handle_draw_area_change)
 
 	add_svg_basemaps();
@@ -646,5 +687,8 @@
 	add_draw_area_titles();
 	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 	$("#field-end-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
+
+
     });
+
 }());
