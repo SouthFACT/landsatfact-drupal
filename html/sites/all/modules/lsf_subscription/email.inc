@@ -141,7 +141,6 @@ function _lsf_subscriptions_send() {
       $nid = user_profile_comments_get_profile_entity($user_id)->nid;
 
       $subject =' New LandsatFACT products have been generated'; 
-
     }
 
     //generate the comment object
