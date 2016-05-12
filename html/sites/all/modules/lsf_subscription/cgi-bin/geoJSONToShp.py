@@ -2,7 +2,7 @@
 #**********************************************************************
 # Description:
 #   Convert GeoJSON to shape.
-#   Creates '/var/vsites/landsatfact-dev.nemac.org/project/html/sites/all/modules/lsf_subscription/cgi-bin/shp_tmp/tmp.shp
+#   Creates '/var/vsites/www.landsatfact.com/project/html/sites/all/modules/lsf_subscription/cgi-bin/shp_tmp/tmp.shp
 #   Returns the result of invoking checkVertices on the tmp.shp
 #   that is True (1) if the shp has greater than 10,000 vertices and 0 return code for False. A negative return code indicates an error.
 #
