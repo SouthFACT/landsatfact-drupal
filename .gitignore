@@ -1,4 +1,8 @@
 *~
+lsf_config.py
+lsf_config.pyc
+config.py
+config.pyc
 bash_config.cfg
 tmp_bash_config.cfg
 lsf_config.ini
