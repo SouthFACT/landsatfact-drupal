@@ -142,9 +142,6 @@ function _lsf_subscriptions_send() {
 
       $subject =' New LandsatFACT products have been generated'; 
 
-      //the body text contails the URL's for each product. 
-      // ' Edit: http://www.landsatfact.com/node/' . $node_id . '/edit' .  PHP_EOL;
- 
     }
 
     //generate the comment object
