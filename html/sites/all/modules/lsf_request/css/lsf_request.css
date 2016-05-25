@@ -1,10 +1,16 @@
-.field-name-field-initial-scene svg,
-.field-name-field-end-scene svg {
+#map-d3 h3 {
+  text-align: center;
+}
+
+#map-d3 .description {
+  text-align: center;
+}
+
+.map-wrapper svg {
     width: 100%;
 }
 
-.field-name-field-initial-scene path,
-.field-name-field-end-scene path {
+.map-wrapper path {
     fill: none;
     stroke: #777;
 }

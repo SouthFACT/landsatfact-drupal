@@ -10,8 +10,7 @@
     var alt_scenes = {}; // caches alternate scenes keyed by id.
 
     // caches selectors used for the svg scene maps
-    var initial_table_selector = "#field-initial-scene-values";
-    var end_table_selector = "#field-end-scene-values";
+    var initial_table_selector = "#map-d3";
 
     /**
      * Handles any county select list being changed. Hits postgres to get geojson
@@ -266,6 +265,7 @@
 		"day" : day
 	    },
 	    success : function (result) {
+                console.log(result);
 		if (!alt_scenes[wrs2]) alt_scenes[wrs2] = result;
 		create_alternate_image_block(scene, $input);
 	    },
@@ -347,7 +347,6 @@
 
     function add_svg_basemaps () {
 	var initial_svg = create_svg_elem(initial_table_selector)
-	var end_svg = create_svg_elem(end_table_selector)
 
 	d3.json("/sites/all/modules/lsf_request/geojson/lsf_states.json", function (json) {
 	    var $svg = $(initial_table_selector + " svg");
@@ -355,34 +354,33 @@
 	    var height = parseInt($svg.height(), 10);
 
 	    var path = generate_d3_geopath(width, height);
-
 	    initial_svg.insert("path", ":first-child")
 		.datum(json)
 		.attr("d", path);
 
-	    end_svg.insert("path", ":first-child")
-		.datum(json)
-		.attr("d", path);
 	});
     }
 
     function create_svg_elem (selector) {
 	var WIDTH_HEIGHT_RATIO = 4/7;
-
+        
 	var $td = $("<td></td>").attr("colspan", "2").addClass("map-wrapper")
 	var $tr = $("<tr></tr>").append($td);
-
+        var $div = $("<div></div>").addClass("field-group-format-wrapper map-wrapper");
+ 
 	$(selector + " tbody").prepend($tr);
-
+        $(selector).append($div);
 	var svg = d3.select(selector + " .map-wrapper").append("svg");
 
 	var $svg = $(selector + " svg");
+
 	var width = parseInt($svg.width(), 10);
 	var height = Math.floor(width * WIDTH_HEIGHT_RATIO);
 
-	if (height > 400) {
-	    height = 400;
-	}
+        height = 250;
+	//if (height > 400) {
+	//    height = 400;
+	//}
 
 	$svg.css("height", height + "px");
 	
@@ -392,7 +390,7 @@
     function generate_d3_geopath (width, height) {
 	var projection = d3.geo.mercator()
             .center([-91, 32.5])
-            .scale(1275)
+            .scale(800)
 	    .translate([width / 2, height / 2]);
 
 	var path = d3.geo.path()
@@ -409,18 +407,11 @@
 	var path = generate_d3_geopath(width, height);
 
 	var initial_svg = d3.select(initial_table_selector + " svg");
-	var end_svg = d3.select(end_table_selector + " svg");
 
 	initial_svg.selectAll(".aoi").remove();
-	end_svg.selectAll(".aoi").remove();
 
         aoi = JSON.parse(aoi);
         initial_svg.append("path")
-	    .datum(aoi)
-	    .attr("d", path)
-	    .attr("class", "aoi");
-	
-        end_svg.append("path")
 	    .datum(aoi)
 	    .attr("d", path)
 	    .attr("class", "aoi");
@@ -440,19 +431,12 @@
 		var path = generate_d3_geopath(width, height);
 
 		var initial_svg = d3.select(initial_table_selector + " svg");
-		var end_svg = d3.select(end_table_selector + " svg");
 		initial_svg.selectAll(".scene").remove();
-		end_svg.selectAll(".scene").remove();
 
 		var scene, i;
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
 		    initial_svg.insert("path", ":last-child")
-			.datum(JSON.parse(scene.geojson))
-			.attr("d", path)
-			.attr("scene", scene.wrs2_code)
-			.attr("class", "scene");
-		    end_svg.insert("path", ":last-child")
 			.datum(JSON.parse(scene.geojson))
 			.attr("d", path)
 			.attr("scene", scene.wrs2_code)
@@ -571,8 +555,9 @@
 	}
 
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var path = $this.closest("table").find(".scene[scene='" + wrs2 + "']");
-	path.insertBefore(path.siblings().last());
+        var path = $(".map-wrapper").find(".scene[scene='" + wrs2 + "']");
+	
+ 	 path.insertBefore(path.siblings().last());
 
 	// jQuery's addClass does not work for svg elements
 	path.attr("class", "scene active");
@@ -589,8 +574,7 @@
 	}
 
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var path = $this.closest("table").find(".scene[scene='" + wrs2 + "']");
-	
+	var path = $(".map-wrapper").find(".scene[scene='" + wrs2 + "']");
 	path.attr("class", "scene");
     }
 
@@ -619,19 +603,15 @@
     function clearAOISVG(){
 
       var initial_svg = d3.select(initial_table_selector + " svg");
-      var end_svg = d3.select(end_table_selector + " svg");
 
       initial_svg.selectAll(".aoi").remove();
-      end_svg.selectAll(".aoi").remove();
     }
 
     function clearSceneSVG(){
 
       var initial_svg = d3.select(initial_table_selector + " svg");
-      var end_svg = d3.select(end_table_selector + " svg");
 
       initial_svg.selectAll(".scene").remove();
-      end_svg.selectAll(".scene").remove();
 
     } 
 
