@@ -60,23 +60,22 @@
      }
 
      // add 45 days to date
-     $expireDate = date($postDate, strtotime("+45 days"));
-     $expireDate = date('Y-m-d H:i:s', $expireDate); 
-
-     $now = date('Y-m-d H:i:s');
+     $expireDate =  date('r', $postDate);
+     $expireDate = date('Y-m-d', strtotime($expireDate."+45 days"));
+     $now = date('Y-m-d');
        
-     if ($now > $expireDate){   
+     if ($now < $expireDate){   
          if($aoi_id > 0){
              $message = '<a href= https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip >Download Reqest</a>';
          }else{
             $message = 'Download Not Available';
         }
      } else{
-         $message = 'Download expired.';  
+         $message = 'Download expired.';
      }
      db_set_active();
 
-     $output = $message
+     $output = $message;
      
 ?>
 <?php /* dpm( current( (Array)$view->field) );*/   ?>
