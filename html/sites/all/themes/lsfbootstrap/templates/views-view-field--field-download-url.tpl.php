@@ -68,10 +68,10 @@
          if($aoi_id > 0){
              $message = '<a href= https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip >Download Reqest</a>';
          }else{
-            $message = 'Download Not Available';
+            $message = '<span class="text-muted" >Download Not Available</span>';
         }
      } else{
-         $message = 'Download expired.';
+         $message = '<span class="text-muted" >Download has expired.</span>';
      }
      db_set_active();
 
