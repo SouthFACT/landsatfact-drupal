@@ -65,9 +65,8 @@ label[for="edit-field-end-scene-und-0-value"] {
 
 .field-name-field-initial-scene .table-striped .draggable,
 .field-name-field-end-scene .table-striped .draggable {
-    width: 25%;
     min-height: 100%;
-    display: inline-block;
+    display: block;
     background-color: transparent;
 }
 
@@ -95,8 +94,4 @@ label[for="edit-field-end-scene-und-0-value"] {
 .field-name-field-initial-scene tr:last-child,
 .field-name-field-end-scene tr:last-child {
     border-right: 1px solid #c1bb86;
-}
-
-.scene-container {
-    cursor: pointer;
 }

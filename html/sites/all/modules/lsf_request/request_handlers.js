@@ -155,8 +155,7 @@
 		    $input_field.val(scene.scene_id);
 		    if ($input_field.siblings(".scene-container").length === 0) {
 			container = create_scene_container(scene)
-			container.addClass("scene-container")
-			    .insertBefore($input_field)
+			container.insertBefore($input_field)
 			    .click(alternate_handler);
 		    } else {
 			$input_field.siblings(".scene-container").children("img").attr("src", scene.browse_url);
@@ -265,7 +264,7 @@
 		"day" : day
 	    },
 	    success : function (result) {
-                console.log(result);
+//                console.log(result);
 		if (!alt_scenes[wrs2]) alt_scenes[wrs2] = result;
 		create_alternate_image_block(scene, $input);
 	    },
@@ -278,23 +277,35 @@
 	});
     }
 
-    function create_scene_container (scene) {
-	var $container = $("<div></div>").addClass("scene-container").data("id", scene.scene_id);
+    function create_inner_scene_container (scene) {
+	var $container = $("<div></div>").addClass("inner-scene-container").data("id", scene.scene_id);
 	$container.append($("<img/>").attr("src", scene.browse_url));
-	$container.append($("<p><span>ID</span>: " + scene.scene_id + "</p>"));
 	$container.append($("<p><span>Date</span>: " + scene.acquistion_date + "</p>"));
 	$container.append($("<p><span>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
+	$container.append($("<p><span>ID</span>: " + scene.scene_id + "</p>"));
 
 	return $container;
     }
 
+    function create_scene_container (scene) {
+	var $megacontainer = $("<div></div>").addClass("scene-container");
+
+	$megacontainer.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button").click(button_left_handler));
+	$megacontainer.append(create_inner_scene_container(scene));
+	$megacontainer.append($("<button></button>").addClass("alt-next-button").addClass("alt-button").click(button_right_handler));
+
+	return $megacontainer;
+    }
+
     function create_alternate_image_container (scene, $input) {
 	var $container = create_scene_container(scene);
+/*
 	$container.click(function () {
 	    $input.val(scene.scene_id);
 	    $input.siblings(".scene-container").html($container.html());
 	    $container.parent().remove();
 	});
+*/
 
 	return $container;
     }
@@ -323,8 +334,6 @@
 	alt_img_container.append(current_image);
 	if (next_image) alt_img_container.append(next_image);
 
-	alt_img_container.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button"));
-	alt_img_container.append($("<button></button>").addClass("alt-next-button").addClass("alt-button"));
 	if (current_index === 1) {
 	    alt_img_container.children("alt-prev-button").css("opacity", "1")
 	}
@@ -457,89 +466,67 @@
     }
 
     function button_left_handler (e) {
+	e.preventDefault();
+
 	var $this = $(this);
 	var checkScene = $this.next();
-	var removeScene = $this.siblings("div").last();
 
 	var scene_id = checkScene.data("id");
+	var scene_date = get_date_from_scene(scene_id);
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var possible_scenes = alt_scenes[wrs2];
-	var next_scene;
-	var i;
-
-	for (i = 0; i < possible_scenes.length; i++) {
-	    next_scene = possible_scenes[i];
-	    if (next_scene.scene_id === scene_id) {
-		next_scene = possible_scenes[i - 1];
-		var index = i - 1;
-		break;
-	    }
+	if (alt_scenes[wrs2]) {
+	    var possible_scenes = alt_scenes[wrs2];
+	} else {
+	    return;
 	}
 
-	if (index === 0) return;
+	var current_index = find_current_scene_index(possible_scenes, scene_date);
 
-	var $parent = $this.parents(".alt-container");
-	var possible_inputs = $parent.siblings(".draggable");
-	var $input;
-
-	for (i = 0; i < possible_inputs.length; i++) {
-	    $input = $(possible_inputs[i]).find("input");
-	    if (wrs2 === get_wrs2_from_scene($input.val())) break;
+	if (possible_scenes[current_index - 1]) {
+	    var next_image = create_inner_scene_container(possible_scenes[current_index - 1]);
+	    checkScene.replaceWith(next_image);
+	    $this.parent().siblings("input").val(possible_scenes[current_index - 1].scene_id);
 	}
-
-	var next_scene_container = create_alternate_image_container(next_scene, $input);
-	next_scene_container.hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
-	checkScene.before(next_scene_container);
-	removeScene.remove();
-
+	
+/*
 	if (index === 1) {
 	    $this.css("opacity", "0")
 	}
 
 	$this.siblings("button").css("opacity", "1");
+*/
     }
 
     function button_right_handler (e) {
+	e.preventDefault();
+
 	var $this = $(this);
 	var checkScene = $this.prev();
-	var removeScene = $this.siblings("div").first();
 
 	var scene_id = checkScene.data("id");
+	var scene_date = get_date_from_scene(scene_id);
 	var wrs2 = get_wrs2_from_scene(scene_id);
-	var possible_scenes = alt_scenes[wrs2];
-	var next_scene;
-	var i;
-
-	for (i = 0; i < possible_scenes.length; i++) {
-	    next_scene = possible_scenes[i];
-	    if (next_scene.scene_id === scene_id) {
-		next_scene = possible_scenes[i + 1];
-		var index = i + 1;
-		break;
-	    }
+	if (alt_scenes[wrs2]) {
+	    var possible_scenes = alt_scenes[wrs2];
+	} else {
+	    return;
 	}
 
-	if (index === possible_scenes.length - 1) return;
+	var current_index = find_current_scene_index(possible_scenes, scene_date);
 
-	var $parent = $this.parents(".alt-container");
-	var possible_inputs = $parent.siblings(".draggable");
-	var $input;
-
-	for (i = 0; i < possible_inputs.length; i++) {
-	    $input = $(possible_inputs[i]).find("input");
-	    if (wrs2 === get_wrs2_from_scene($input.val())) break;
+	if (possible_scenes[current_index + 1]) {
+	    var next_image = create_inner_scene_container(possible_scenes[current_index + 1]);
+	    checkScene.replaceWith(next_image);
+	    $this.parent().siblings("input").val(possible_scenes[current_index + 1].scene_id);
 	}
-
-	var next_scene_container = create_alternate_image_container(next_scene, $input);
-	next_scene_container.hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
-	checkScene.after(next_scene_container);
-	removeScene.remove();
-
+	
+/*
 	if (index === possible_scenes.length - 2) {
 	    $this.css("opacity", "0")
 	}
 
 	$this.siblings("button").css("opacity", "1");
+*/
     }
 
     function highlight_scene_enter_handler () {
