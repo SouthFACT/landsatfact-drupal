@@ -302,6 +302,19 @@
 	    .addClass("alt-next-button").addClass("alt-button")
 	    .click(button_right_handler);
 
+	var scene_date = get_date_from_scene(scene.scene_id);
+	var wrs2 = get_wrs2_from_scene(scene.scene_id);
+	if (alt_scenes[wrs2]) {
+	    var current_index = find_current_scene_index(alt_scenes[wrs2], scene_date);
+	    if (current_index === 0) {
+		leftButton.css("opacity", "0");
+	    }
+
+	    if (current_index === (alt_scenes[wrs2].length - 1)) {
+		rightButton.css("opacity", "0");
+	    }
+	}
+
 	var $megacontainer = $("<div></div>").addClass("scene-container");
 
 	$megacontainer.prepend(leftButton);
@@ -438,20 +451,19 @@
 	}
 
 	var current_index = find_current_scene_index(possible_scenes, scene_date);
+	var next_index = current_index - 1;
 
-	if (possible_scenes[current_index - 1]) {
-	    var next_image = create_inner_scene_container(possible_scenes[current_index - 1]);
+	if (possible_scenes[next_index]) {
+	    var next_image = create_inner_scene_container(possible_scenes[next_index]);
 	    checkScene.replaceWith(next_image);
-	    $this.parent().siblings("input").val(possible_scenes[current_index - 1].scene_id);
+	    $this.parent().siblings("input").val(possible_scenes[next_index].scene_id);
 	}
 	
-/*
-	if (index === 1) {
+	if (next_index === 0) {
 	    $this.css("opacity", "0")
 	}
 
 	$this.siblings("button").css("opacity", "1");
-*/
     }
 
     function button_right_handler (e) {
@@ -470,20 +482,19 @@
 	}
 
 	var current_index = find_current_scene_index(possible_scenes, scene_date);
+	var next_index = current_index + 1;
 
-	if (possible_scenes[current_index + 1]) {
-	    var next_image = create_inner_scene_container(possible_scenes[current_index + 1]);
+	if (possible_scenes[next_index]) {
+	    var next_image = create_inner_scene_container(possible_scenes[next_index]);
 	    checkScene.replaceWith(next_image);
-	    $this.parent().siblings("input").val(possible_scenes[current_index + 1].scene_id);
+	    $this.parent().siblings("input").val(possible_scenes[next_index].scene_id);
 	}
 	
-/*
-	if (index === possible_scenes.length - 2) {
+	if (next_index === possible_scenes.length - 1) {
 	    $this.css("opacity", "0")
 	}
 
 	$this.siblings("button").css("opacity", "1");
-*/
     }
 
     function highlight_scene_enter_handler () {
