@@ -151,7 +151,10 @@
 		var $input_field;
 
 		$input_fields.val("");
-		$input_fields.siblings(".scene-container").remove();
+		container = $input_fields.siblings(".scene-container");
+		container.children(".alt-prev-button").off("click", button_left_handler);
+		container.children(".alt-next-button").off("click", button_right_handler);
+		container.remove();
 
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
@@ -459,7 +462,7 @@
 	    $this.parent().siblings("input").val(possible_scenes[next_index].scene_id);
 	}
 	
-	if (next_index === 0) {
+	if (next_index === 0 || current_index === 0) {
 	    $this.css("opacity", "0")
 	}
 
@@ -490,7 +493,7 @@
 	    $this.parent().siblings("input").val(possible_scenes[next_index].scene_id);
 	}
 	
-	if (next_index === possible_scenes.length - 1) {
+	if (next_index === possible_scenes.length - 1 || current_index === possible_scenes.length - 1) {
 	    $this.css("opacity", "0")
 	}
 
