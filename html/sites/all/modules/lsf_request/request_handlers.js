@@ -97,20 +97,26 @@
     function get_initial_scenes () {
 	var dates = get_initial_dates();
 	var input_selector = "#field-initial-scene-values";
-	var alternate_handler = get_initial_alternate_scenes;
 
-	populate_scene_input_fields(dates, input_selector, alternate_handler);
+	populate_scene_input_fields(dates, input_selector);
     }
 
     function get_end_scenes () {
 	var dates = get_end_dates();
 	var input_selector = "#field-end-scene-values";
-	var alternate_handler = get_end_alternate_scenes;
 
-	populate_scene_input_fields(dates, input_selector, alternate_handler);
+	populate_scene_input_fields(dates, input_selector);
     }
 
-    function populate_scene_input_fields (date, input_selector, alternate_handler) {
+    /**
+     * Gets the current wrs2 for a scene and inserts the UI for picking an alternate version,
+     * inserts the wrs2 value into the appropriate input fields and kicks off the population
+     * of alternate wrs2 id's for a scene.
+     *
+     * @arg date Object - day, month and year of the initial or end date
+     * @arg input_selector String - id of the parent of the input fields for the initial or end date
+     */
+    function populate_scene_input_fields (date, input_selector) {
 	var year = date.year;
 	var month = date.month;
 	var day = date.day;
@@ -138,7 +144,6 @@
 		"day" : day
 	    },
 	    success : function (result) {
-		console.log(result);
 		var container;
 		var scene;
 		var i;
@@ -146,20 +151,16 @@
 		var $input_field;
 
 		$input_fields.val("");
-		$input_fields.siblings(".scene-container")
-		    .off("click", alternate_handler)
-		    .remove();
+		$input_fields.siblings(".scene-container").remove();
+
 		for (i = 0; i < result.length; i++) {
 		    scene = result[i];
+		    populate_alternate_scenes(scene.scene_id, date);
+
 		    $input_field = $($input_fields[i]);
 		    $input_field.val(scene.scene_id);
-		    if ($input_field.siblings(".scene-container").length === 0) {
-			container = create_scene_container(scene)
-			container.insertBefore($input_field)
-			    .click(alternate_handler);
-		    } else {
-			$input_field.siblings(".scene-container").children("img").attr("src", scene.browse_url);
-		    }
+		    container = create_scene_container(scene);
+		    container.insertBefore($input_field);
 		}
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -216,32 +217,24 @@
 	}
     }
 
-    function get_initial_alternate_scenes () {
-	var dates = get_initial_dates();
-	populate_alternate_scenes(dates, this);
-    }
-
-    function get_end_alternate_scenes () {
-	var dates = get_end_dates();
-	populate_alternate_scenes(dates, this);
-    }
-
-    function populate_alternate_scenes (date, elem) {
+    /**
+     * Caches metadata for the alternate dates of a scene
+     *
+     * @arg scene_id String
+     * @arg date Object - mostly deprecated but still required by other functions, so it is required.
+     */
+    function populate_alternate_scenes (scene_id, date) {
 	var year = date.year;
 	var month = date.month;
 	var day = date.day;
 
-	var $parent = $(elem).parent();
-	var $input = $(elem).siblings("input"); 
-	var scene = $input.val();
-	var wrs2 = get_wrs2_from_scene(scene);
+	var wrs2 = get_wrs2_from_scene(scene_id);
 	
 	if (!wrs2 || !year || !month || !day) {
 	    return;
 	}
 
 	if (alt_scenes[wrs2]) {
-	    create_alternate_image_block(scene, $input);
 	    return;
 	}
 
@@ -264,9 +257,7 @@
 		"day" : day
 	    },
 	    success : function (result) {
-//                console.log(result);
 		if (!alt_scenes[wrs2]) alt_scenes[wrs2] = result;
-		create_alternate_image_block(scene, $input);
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
 		console.log("ERROR");
@@ -277,6 +268,16 @@
 	});
     }
 
+    /**
+     * Creates inner container for a scene that displays the image & metadata
+     *
+     * @arg scene Object - Object that contains metadata for scene. Needs the keys
+     *    - scene_id
+     *    - browse_url
+     *    - acquistion_date
+     *    - cc_full
+     * @return $container jQuery Object - jQuery element that represents the container dom object
+     */
     function create_inner_scene_container (scene) {
 	var $container = $("<div></div>").addClass("inner-scene-container").data("id", scene.scene_id);
 	$container.append($("<img/>").attr("src", scene.browse_url));
@@ -287,71 +288,27 @@
 	return $container;
     }
 
+    /**
+     * Creates overall wrapper for each scene. Sets up arrows and inner container.
+     */
     function create_scene_container (scene) {
+	var innerContainer = create_inner_scene_container(scene);
+
+	var leftButton = $("<button></button>")
+	    .addClass("alt-prev-button").addClass("alt-button")
+	    .click(button_left_handler);
+
+	var rightButton = $("<button></button>")
+	    .addClass("alt-next-button").addClass("alt-button")
+	    .click(button_right_handler);
+
 	var $megacontainer = $("<div></div>").addClass("scene-container");
 
-	$megacontainer.prepend($("<button></button>").addClass("alt-prev-button").addClass("alt-button").click(button_left_handler));
-	$megacontainer.append(create_inner_scene_container(scene));
-	$megacontainer.append($("<button></button>").addClass("alt-next-button").addClass("alt-button").click(button_right_handler));
+	$megacontainer.prepend(leftButton);
+	$megacontainer.append(innerContainer);
+	$megacontainer.append(rightButton);
 
 	return $megacontainer;
-    }
-
-    function create_alternate_image_container (scene, $input) {
-	var $container = create_scene_container(scene);
-/*
-	$container.click(function () {
-	    $input.val(scene.scene_id);
-	    $input.siblings(".scene-container").html($container.html());
-	    $container.parent().remove();
-	});
-*/
-
-	return $container;
-    }
-
-    function create_alternate_image_block (scene, $input) {
-	var scene_date = get_date_from_scene(scene);
-	var wrs2 = get_wrs2_from_scene(scene);
-	var scene_list = alt_scenes[wrs2];
-	if (!scene_list) return;
-
-	var current_index = find_current_scene_index(scene_list, scene_date);
-	if (current_index === 0) current_index = 1;
-	if (current_index === scene_list.length - 1) current_index = scene_list.length - 2;
-
-	var current_image = create_alternate_image_container(scene_list[current_index], $input);
-	var prev_image, next_image;
-	if (scene_list[current_index - 1]) {
-	    prev_image = create_alternate_image_container(scene_list[current_index - 1], $input);
-	}
-	if (scene_list[current_index + 1]) {
-	    next_image = create_alternate_image_container(scene_list[current_index + 1], $input);
-	}
-
-	var alt_img_container = $("<tr></tr>").addClass("alt-container");
-	if (prev_image) alt_img_container.append(prev_image);
-	alt_img_container.append(current_image);
-	if (next_image) alt_img_container.append(next_image);
-
-	if (current_index === 1) {
-	    alt_img_container.children("alt-prev-button").css("opacity", "1")
-	}
-	if (current_index === scene_list.length - 2) {
-	    alt_img_container.children("alt-next-button").css("opacity", "1")
-	}
-
-	var $parent_container = $input.closest("tr");
-
-	if ($parent_container.siblings(".alt-container").length === 0) {
-	    $parent_container.siblings(":first-child").after(alt_img_container);
-	} else {
-	    $parent_container.siblings(".alt-container").replaceWith(alt_img_container);
-	}
-	alt_img_container.children("div").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
-	alt_img_container.children("button").click(button_handler);
-	alt_img_container.children(".alt-prev-button").click(button_left_handler);
-	alt_img_container.children(".alt-next-button").click(button_right_handler);
     }
 
     function add_svg_basemaps () {
