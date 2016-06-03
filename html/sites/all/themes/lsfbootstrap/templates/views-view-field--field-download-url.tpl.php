@@ -99,7 +99,7 @@
              if($status === ''){
                  $message = '<span class="text-warning" >Download Not Available</span>'; 
              }else{ 
-                 $message = '<span class="text-warning" >Custon Requst currrently processing: ' . $status . '</span>';
+                 $message = '<span class="text-warning" >Custom Requst currrently processing: ' . $status . '</span>';
              }
          }
      } else{
