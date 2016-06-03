@@ -45,6 +45,9 @@
      Database::addConnectionInfo($database, 'default', $lsf_database);
      db_set_active($database);
 
+     //get the aoi_id for the Custom Request 
+     //   the download files uses the aoi_id in the file name. which is in postgres database
+     //   retrieve to concat the URL
      if ($view->name === "custom_request_status") {
             $result = db_query('select * from get_aoi_id_by_nodeid(:nid)',
                                array(
@@ -52,29 +55,62 @@
                                ));   
      }
 
+     
      $aoi_id = 0;
 
+     //retreive aoi_id from results
      foreach($result as $item) {
        $aoi_id = $item->get_aoi_id_by_nodeid;
        break;
      }
 
-     // add 45 days to date
+     //check status of cr incase the request is currrently processing
+     if ($view->name === "custom_request_status") {
+         $result =  db_query("SELECT status AS status  FROM public.get_customrequest_status_bynode(:n) ORDER BY status_date desc limit 1", array(':n' => $node_id));
+     }
+
+     $status = '';
+
+     //retreive aoi_id from results
+     foreach($result as $item) {
+       $status = $item->status;
+       break;
+     }
+     
+     //check status if not  completd the still processing 
+
+     // add 45 days to date so we can tell when download has expired
      $expireDate =  date('r', $postDate);
      $expireDate = date('Y-m-d', strtotime($expireDate."+45 days"));
      $now = date('Y-m-d');
        
-     if ($now < $expireDate){   
-         if($aoi_id > 0){
-             $message = '<a href= https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip >Download Reqest</a>';
+      //set messsage
+     if ($now < $expireDate){  
+         //check if CR expired made over 45 days ago
+         if($status === 'Completed'){
+             //check if status is conpleted
+             if($aoi_id > 0){
+                  //check that there is a CR in the user_aoi table
+                 $message = '<a class="text-sucess"  href="https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip" >Download Reqest</a>';
+             }else{
+                $message = '<span class="text-muted" >Download Not Available</span>';
+             }
          }else{
-            $message = '<span class="text-muted" >Download Not Available</span>';
-        }
+             if($status === ''){
+                 $message = '<span class="text-warning" >Download Not Available</span>'; 
+             }else{ 
+                 $message = '<span class="text-warning" >Custon Requst currrently processing: ' . $status . '</span>';
+             }
+         }
      } else{
          $message = '<span class="text-muted" >Download has expired.</span>';
      }
+
+
+
      db_set_active();
 
+     //$output replaces field with our custom message
      $output = $message;
      
 ?>
