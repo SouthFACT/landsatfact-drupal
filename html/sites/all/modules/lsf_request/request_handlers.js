@@ -613,10 +613,10 @@
           geojson = JSON.stringify(geoJson);
           var errors = geojsonhint.hint(geojson); 
           if(geoJson.features.length === 0){
-            $("#thegeojson").text('No Features in shapefile')
+            console.log('No Features in shapefile');
+             deleteShapes();
             throw new Error("No Features in shapefile")
           }else{
-            //$("#thegeojson").text(shp_GeoJSON)
 	    $("#edit-field-area-geojson-und-0-geom").val(geojson);
 	    console.log(geojson);
             add_svg_aoi(geojson);
@@ -631,16 +631,21 @@
             .then(function(zip) {
               var needsExt = checkfile(zip);
               if (needsExt.length >= 1){
-                //$("#thegeojson").text("The zip file is missing files with these extensions: " + needsExt)
-                //throw new Error("The zip file is missing files with these extensions: " + needsExt)
+                console.log('The zip file is missing files with these extensions: " + needsExt');
+                deleteShapes();
+                throw new Error("The zip file is missing files with these extensions: " + needsExt)
                 return needsExt
               }else{
                 convertToGeoJSON(file)
               }
             }, function (e) {
               console.log("Error reading " + file.name + " : " + e.message)
+              deleteShapes();
+              throw new Error("Error reading " + file.name + " : " + e.message)
             }).catch(function(e) {
               console.log("error getting zipfile " + e); // "oh, no!"
+              deleteShapes();
+              throw new Error("error getting zipfile " + e);
             })
       }
 
@@ -666,8 +671,10 @@
             var f =  handleZipFile(file);
             //console.log(f)
         } else {
-          $("#thegeojson").text('shapefiles must be in zip file')
-        }
+          deleteShapes();
+          console.log('shapefiles must be in zip file'); // "oh, no!" 
+          throw new Error('shapefiles must be in zip file'); 
+       }
     }
 
     $(document).ready(function () {
