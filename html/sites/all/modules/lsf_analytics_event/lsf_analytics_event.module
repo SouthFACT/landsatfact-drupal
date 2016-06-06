@@ -87,11 +87,29 @@ function _lsf_analytics_event_set_selectors_array() {
       'noninteraction' => FALSE,
     ),
     array(
+      'event' => 'mousedown',
+      'selector' => '.newcustomrequest a',
+      'category' => 'Custom Request',
+      'action' => 'Add',
+      'label' => 'Create Custom Request',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
       'event' => 'click',
       'selector' => '.user-add-aoi p a',
       'category' => 'Subscription',
       'action' => 'Add',
       'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
+    ),
+    array(
+      'event' => 'click',
+      'selector' => '.newcustomrequest a',
+      'category' => 'Custom Request',
+      'action' => 'Add',
+      'label' => 'Custom Request',
       'value' => 0,
       'noninteraction' => FALSE,
     ),
@@ -265,7 +283,44 @@ function _lsf_analytics_event_set_selectors_array() {
       'label' => 'preview',
       'value' => 0,
       'noninteraction' => FALSE,
-   )
+   ),
+    array(
+      'event' => 'mousedown',
+      'selector' => '#custom-request-node-form .alt-prev-button',
+      'category' => 'Custom Request',
+      'action' => 'change',
+      'label' => 'Scene Image Prev',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'mousedown',
+      'selector' => '#custom-request-node-form .alt-next-button',
+      'category' => 'Custom Request',
+      'action' => 'change',
+      'label' => 'Scene Image Next',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#custom-request-node-form .alt-prev-button',
+      'category' => 'Custom Request',
+      'action' => 'change',
+      'label' => 'Scene Image Prev',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '#custom-request-node-form .alt-next-button',
+      'category' => 'Custom Request',
+      'action' => 'change',
+      'label' => 'Scene Image Next',
+      'value' => 0,
+      'noninteraction' => FALSE,
+   )  
+
   );
 
   return $selectors;

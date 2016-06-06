@@ -593,6 +593,83 @@
       clearSceneSVG();
     };
 
+
+      function checkfile(zip){
+        var MustHaveExt = ['prj','dbf','shp'];
+        var hasExt = [];
+        var needsExt = [];
+        zip.forEach(function (relativePath, zipEntry) {
+          var ext = zipEntry.name.slice(-3).toLowerCase();
+          hasExt.push(ext);
+        });
+        needsExt = MustHaveExt.filter(function(val) {
+          return hasExt.indexOf(val) == -1;
+        });
+        return needsExt;
+      }
+
+      function convertToGeoJSON(data){
+        shp(data).then(function(geoJson){
+          geojson = JSON.stringify(geoJson);
+          var errors = geojsonhint.hint(geojson); 
+          if(geoJson.features.length === 0){
+            $("#thegeojson").text('No Features in shapefile')
+            throw new Error("No Features in shapefile")
+          }else{
+            //$("#thegeojson").text(shp_GeoJSON)
+	    $("#edit-field-area-geojson-und-0-geom").val(geojson);
+	    console.log(geojson);
+            add_svg_aoi(geojson);
+	    get_initial_scenes();
+	    get_end_scenes();
+         }
+        });
+      }
+
+      function inspectZipFile(file){
+        return JSZip.loadAsync(file)
+            .then(function(zip) {
+              var needsExt = checkfile(zip);
+              if (needsExt.length >= 1){
+                //$("#thegeojson").text("The zip file is missing files with these extensions: " + needsExt)
+                //throw new Error("The zip file is missing files with these extensions: " + needsExt)
+                return needsExt
+              }else{
+                convertToGeoJSON(file)
+              }
+            }, function (e) {
+              console.log("Error reading " + file.name + " : " + e.message)
+            }).catch(function(e) {
+              console.log("error getting zipfile " + e); // "oh, no!"
+            })
+      }
+
+      function readerLoad() {
+          if (this.readyState !== 2 || this.error) {
+              return;
+          }
+          else {
+              inspectZipFile(this.result);
+          }
+      }
+
+      function handleZipFile(file) {
+          var reader = new FileReader();
+          reader.onload = readerLoad;
+          return reader.readAsArrayBuffer(file);
+      }
+
+    function handle_shp_upload(){
+        var self = $(this);
+        var file = self[0].files[0]
+        if (file.name.slice(-3) === 'zip') {
+            var f =  handleZipFile(file);
+            //console.log(f)
+        } else {
+          $("#thegeojson").text('shapefiles must be in zip file')
+        }
+    }
+
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -615,6 +692,9 @@
 	$("#edit-field-end-date-und-0-value-year").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-month").on("change", get_end_scenes);
 	$("#edit-field-end-date-und-0-value-day").on("change", get_end_scenes);
+
+        $("#edit-field-area-shapefile-und-0-upload").on("change", handle_shp_upload);
+
 
         $("li#deleteShapes").on('click',deleteShapes);
 
