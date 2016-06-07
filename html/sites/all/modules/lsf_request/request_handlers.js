@@ -592,7 +592,15 @@
       clearAOISVG();
       clearSceneSVG();
     };
-
+   
+   function shapefile_error(msg){
+      $('#shapefile-upload-error').remove();
+      deleteShapes();
+      $('.scene-container').empty()
+      $('.field-name-field-area-shapefile ').prepend('<div id="shapefile-upload-error" class="alert alert-danger" role="alert"><strong>Error getting shapefile: </strong>' + msg + '</dv>'); 
+      console.log(msg);
+      throw new Error(msg);
+   }
 
       function checkfile(zip){
         var MustHaveExt = ['prj','dbf','shp'];
@@ -613,10 +621,9 @@
           geojson = JSON.stringify(geoJson);
           var errors = geojsonhint.hint(geojson); 
           if(geoJson.features.length === 0){
-            console.log('No Features in shapefile');
-             deleteShapes();
-            throw new Error("No Features in shapefile")
+            shapefile_error('No Features in shapefile');
           }else{
+            //good shape file add and find scenes.
 	    $("#edit-field-area-geojson-und-0-geom").val(geojson);
 	    console.log(geojson);
             add_svg_aoi(geojson);
@@ -631,22 +638,13 @@
             .then(function(zip) {
               var needsExt = checkfile(zip);
               if (needsExt.length >= 1){
-                console.log('The zip file is missing files with these extensions: " + needsExt');
-                deleteShapes();
-                throw new Error("The zip file is missing files with these extensions: " + needsExt)
-                return needsExt
+                shapefile_error("The zip file is missing files with these extensions: " + needsExt);
               }else{
                 convertToGeoJSON(file)
               }
             }, function (e) {
-              console.log("Error reading " + file.name + " : " + e.message)
-              deleteShapes();
-              throw new Error("Error reading " + file.name + " : " + e.message)
-            }).catch(function(e) {
-              console.log("error getting zipfile " + e); // "oh, no!"
-              deleteShapes();
-              throw new Error("error getting zipfile " + e);
-            })
+                   shapefile_error("Error reading " + file.name + " : " + e.message); 
+            });
       }
 
       function readerLoad() {
@@ -665,15 +663,16 @@
       }
 
     function handle_shp_upload(){
+        $('#shapefile-upload-error').remove();
+        $('#shapefile-upload-error').remove();
+        $('#shapefile-upload-error').remove();
         var self = $(this);
         var file = self[0].files[0]
         if (file.name.slice(-3) === 'zip') {
             var f =  handleZipFile(file);
             //console.log(f)
         } else {
-          deleteShapes();
-          console.log('shapefiles must be in zip file'); // "oh, no!" 
-          throw new Error('shapefiles must be in zip file'); 
+          shapefile_error('shapefiles must be in zip file');
        }
     }
 
