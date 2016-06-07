@@ -225,7 +225,16 @@ function lsf_request_node_insert($node) {
 // Implements hook_node_validate
 function lsf_request_node_validate($node) {
     if ($node->type === 'custom_request') {
-      if ($node->field_area_type['und'][0]['value']=='draw_area') {
+        
+
+     if ($node->field_area_geojson['und'][0]['geom']===''){
+        form_set_error(
+            t('No Area of Interest.'),
+            t('There is no Area of interest defined. Please select a valid area of interest or shapefile and try again.  Thanks!')
+        );
+        return;
+     } 
+     if ($node->field_area_type['und'][0]['value']=='draw_area') {
         geophp_load();
         $geom = geophp::load($node->field_custom_area[LANGUAGE_NONE][0]['geom']);
         $geojson_writer = new GeoJSON();
