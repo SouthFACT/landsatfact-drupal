@@ -681,6 +681,9 @@
        }
     }
 
+    function ga_function(category, action, label){
+        ga('send', 'event', category, action, label);
+    }    
     $(document).ready(function () {
 	$("#edit-field-al-counties-und").on("change", handle_county_change);
 	$("#edit-field-ar-counties-und").on("change", handle_county_change);
@@ -717,6 +720,12 @@
 	$("#field-initial-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 	$("#field-end-scene-values .form-type-textfield").hover(highlight_scene_enter_handler, highlight_scene_exit_handler);
 
+        //for some reason click in google anlytis module for drupal do not work on all elements....
+        // adding that here
+        $('#custom-request-node-form .alt-next-button').on("click",ga_function('Custom Request', 'change', 'Scene Image Next'));
+        $('#custom-request-node-form .alt-prev-button').on("click",ga_function('Custom Request', 'change', 'Scene Image Prev'));
+        $('.newcustomrequest a').on("click",ga_function('Custom Request', 'Add', 'Custom Request'));
+        $('.field-group-format-wrapper.map-wrapper').on("click",ga_function('Custom Request', 'Click', 'Scene Map'));
 
     });
 
