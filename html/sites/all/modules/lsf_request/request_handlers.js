@@ -161,6 +161,7 @@
 		    populate_alternate_scenes(scene.scene_id, date);
 
 		    $input_field = $($input_fields[i]);
+                     
 		    $input_field.val(scene.scene_id);
 		    container = create_scene_container(scene);
 		    container.insertBefore($input_field);
@@ -285,7 +286,19 @@
 	var $container = $("<div></div>").addClass("inner-scene-container").data("id", scene.scene_id);
 	$container.append($("<img/>").attr("src", scene.browse_url));
 	$container.append($("<p><span>Date</span>: " + scene.acquistion_date + "</p>"));
-	$container.append($("<p><span>Cloud Cover</span>: " + scene.cc_full + "%</p>"));
+
+        var classCC = '';
+        var cloudCover = scene.cc_full;
+
+        if (cloudCover > 10) {
+            classCC = 'text-danger';
+        } else if (cloudCover > 5 && cloudCover < 10) {
+            classCC = 'text-warning';
+        } else if (cloudCover >=  0 && cloudCover <  5) {
+            classCC = 'text-success'
+        }
+
+	$container.append($('<p class="' + classCC + '" ><span class="' + classCC + '" >Cloud Cover</span>: ' + scene.cc_full + '%</p>'));
 	$container.append($("<p><span>ID</span>: " + scene.scene_id + "</p>"));
 
 	return $container;
