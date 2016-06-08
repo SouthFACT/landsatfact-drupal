@@ -283,9 +283,6 @@
      * @return $container jQuery Object - jQuery element that represents the container dom object
      */
     function create_inner_scene_container (scene) {
-	var $container = $("<div></div>").addClass("inner-scene-container").data("id", scene.scene_id);
-	$container.append($("<img/>").attr("src", scene.browse_url));
-	$container.append($("<p><span>Date</span>: " + scene.acquistion_date + "</p>"));
 
         var classCC = '';
         var cloudCover = scene.cc_full;
@@ -298,9 +295,18 @@
             classCC = 'text-success'
         }
 
-	$container.append($('<p class="' + classCC + '" ><span class="' + classCC + '" >Cloud Cover</span>: ' + scene.cc_full + '%</p>'));
-	$container.append($("<p><span>ID</span>: " + scene.scene_id + "</p>"));
+	var $container = $("<div></div>").addClass("inner-scene-container").data("id", scene.scene_id);
+        var $nameContainer = $('<div></div>').addClass("inner-scene-desc-container").data("id","scene-desc");
+        $nameContainer.append($("<p><span>SCENE</span>:<br /> " + scene.scene_id + "</p>"));
+        $container.append($nameContainer); 
+	$container.append($("<img/>").attr("src", scene.browse_url));
 
+        var $descContainer = $('<div></div>').addClass("inner-scene-desc-container").data("id","scene-desc");
+
+	$descContainer.append($('<p><span>Date</span>: ' + scene.acquistion_date + '</p>'));
+
+	$descContainer.append($('<p class="' + classCC + '" ><span class="' + classCC + '" >Cloud Cover</span>: ' + scene.cc_full + '%</p>'));
+        $container.append($descContainer);
 	return $container;
     }
 
@@ -314,7 +320,7 @@
 	    .addClass("alt-prev-button").addClass("alt-button")
 	    .click(button_left_handler);
 
-	var rightButton = $("<button></button>")
+	var rightButton = $('<button></button>')
 	    .addClass("alt-next-button").addClass("alt-button")
 	    .click(button_right_handler);
 
@@ -335,7 +341,7 @@
 
 	$megacontainer.prepend(leftButton);
 	$megacontainer.append(innerContainer);
-	$megacontainer.append(rightButton);
+        $megacontainer.append(rightButton);
 
 	return $megacontainer;
     }

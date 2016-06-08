@@ -78,16 +78,24 @@
     }
 }
 
-#field-initial-scene-values th{
+#field-initial-scene-values{ 
+    background-color: #f9f9f9;
+
+  th{
     color: #666666;
     border-color: #ddd;
     background-color: #f5f5f5;
+  }
 }
 
-#edit-field-end-scene th{
+#field-end-scene-values{
+    background-color: #f9f9f9;
+
+  th{
     color: #666666;
     border-color: #ddd;
     background-color: #f5f5f5;
+  }
 }
 
 .scene-container{
@@ -103,6 +111,8 @@
     border-radius: 1em;
     cursor: pointer;
     vertical-align: top;
+    background-color: #fff;
+    border: 1px solid #ddd;
 
     p {
 	margin: 0;
@@ -118,7 +128,11 @@
 	width: 200px;
 	margin-left: auto;
 	margin-right: auto;
-
+    }
+   
+    .inner-scene-desc-container{
+      text-align: left;
+      padding: 5px;
     }
 }
 
@@ -127,24 +141,26 @@
 }
 
 .alt-button {
-    width: 200px;
-    height: 100%;
-    min-height: 260px;
+    width: 50px;
+    height: 200px;
+    min-height: 200px;
     max-width: 12.5%;
     border: none;
     background-color: #333;
-    background-color: rgba(20,20,20,.5);
+    background-color: transparent;
     background-position: 50%;
     background-repeat: no-repeat;
     background-size: contain;
 }
 
 .alt-prev-button {
-    background-image: url("../images/arrow_prev.png");
+    background-image: url("../images/prev.png");
+    background-position: 0px 125px;
 }
 
 .alt-next-button {
-    background-image: url("../images/arrow_next.png");
+    background-image: url("../images/next.png");
+    background-position: 0px 125px;    
 }
 
 .node-form {
