@@ -91,7 +91,7 @@
              //check if status is conpleted
              if($aoi_id > 0){
                   //check that there is a CR in the user_aoi table
-                 $message = '<a class="text-sucess"  href="https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip" >Download Reqest</a>';
+                 $message = '<a class="text-sucess"  href="https://s3.amazonaws.com/landsat-cr-products/' . $drupalUser . '_' . $aoi_id . '.zip" >Download Request</a>';
              }else{
                 $message = '<span class="text-muted" >Download Not Available</span>';
              }
@@ -99,7 +99,7 @@
              if($status === ''){
                  $message = '<span class="text-warning" >Download Not Available</span>'; 
              }else{ 
-                 $message = '<span class="text-warning" >Custom Requst currrently processing: ' . $status . '</span>';
+                 $message = '<span class="text-warning" >Custom Request currrently processing: ' . $status . '</span>';
              }
          }
      } else{
