@@ -67,7 +67,7 @@
      if (strlen($aoi_id) > 0){
       $message = $aoi_id;
      } else {
-      $message = 'Uknown';
+      $message = 'Not Available';
      }
 
      db_set_active();
