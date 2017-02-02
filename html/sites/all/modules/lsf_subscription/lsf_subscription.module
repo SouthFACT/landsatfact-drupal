@@ -347,3 +347,18 @@ function lsf_subscription_form_alter(&$form, &$form_state, $form_id) {
         $form['actions']['submit']['#value'] = 'Submit';
     }
 }
+
+
+
+
+
+/**
+ * Implements hook_node_view
+ */
+function lsf_subscription_node_view($node, $view_mode, $langcode) {
+    if ($node->type === 'subscription') {
+        $path = drupal_get_path('module','lsf_subscription') . '/notification_table.js';
+        $node->content['#attached']['js'][] = $path;
+        dpm($node);
+    }
+}

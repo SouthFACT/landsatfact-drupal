@@ -4,6 +4,7 @@
     $.get('/sites/all/modules/lsf_subscription/mockup.csv', function(data) {
 	var products = processFileData(data);
 	var $table = buildTable(products);
+	$table.on("click", "a.date-loader", loadLayer);
 	$.ready(insertTable($table));
 	console.log(products);
     });
@@ -80,7 +81,7 @@
 
     function buildBodyRow(product) {
 	var row = $('<tr></tr>');
-	row.append($('<td>' + product.date + '</td>'));
+	row.append($('<td><a class="date-loader">' + product.date + '</a></td>'));
 	row.append($('<td><a href="' + product.viewer + '" target="_blank">Display in viewer</a></td>'));
 	row.append($('<td>' + product.base.join('<br>') + '</td>'));
 	row.append($('<td>' + product.comparison.join('<br>') + '</td>'));
@@ -89,5 +90,32 @@
 
     function insertTable(table) {
 	$('.node-subscription').append(table);
+    }
+
+    function loadLayer(event) {
+	event.preventDefault();
+	var date = $(this).text();
+	var map = $('.openlayers-map').data('openlayers');
+	var layer = $(this).data('layer') ? $(this).data('layer') : createLayer(date, $(this));
+	console.log(map)
+
+	map.openlayers.addLayer(layer);
+    }
+
+    function createLayer(date, elem) {
+	var layer = new OpenLayers.Layer.WMS(
+            "SWIR Threshold for " + date,
+            "http://landsatfact-data.nemac.org/lsf-swir-threshold",
+            {
+                projection  : new OpenLayers.Projection("EPSG:900913"),
+                units       : "m",
+                layers      : "SWIR-archiveMaskForForestCloudGap",
+                transparent : true,
+		time        : date
+            }
+        );
+
+	elem.data('layer', layer);
+	return layer;
     }
 }(jQuery));
