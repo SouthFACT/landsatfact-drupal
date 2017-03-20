@@ -25,9 +25,6 @@ function _lsf_subscription_set_database_connection() {
 
 // Implements hook_node_validate
 function lsf_subscription_node_validate($node, $form, &$form_state) {
-    //    file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/node.log', print_r($node,TRUE));
-    //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/form.log', print_r($form,TRUE));
-    //        file_put_contents(drupal_get_path('module', 'lsf_subscription') . '/formstate.log', print_r($form_state,TRUE));
 
     if ($node->field_area_geojson['und'][0]['geom']===''){
        form_set_error(
@@ -36,73 +33,8 @@ function lsf_subscription_node_validate($node, $form, &$form_state) {
        );
        return;
     }
-    
+
     if ($node->type === 'subscription') {
-        // Runs validation on uploaded zip, converts it to geojson and sets field_geojson
-        // if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'upload_shapefile') {
-        //     if (!isset($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']) || $node->field_area_shapefile[LANGUAGE_NONE][0]['fid'] === 0) {
-        //         form_set_error(
-        //             t('Invalid Zip in area shapefile'),
-        //             t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx, .prj and .dbf files.')
-        //         );
-        //         return;
-        //     }
-        //
-        //     $zip = file_load($node->field_area_shapefile[LANGUAGE_NONE][0]['fid']);
-        //     $zip_path = 'sites/default/files/' . file_uri_target($zip->uri);
-        //     $python_path = '/usr/bin/python ' . drupal_get_path('module', 'lsf_subscription') . '/cgi-bin/';
-        //
-        //     // verifies the uploaded zip contains .shp, .shx, .dbf & .prj files
-        //     $check_zip = shell_exec($python_path . 'checkZip.py ' . $zip_path);
-        //     if (trim($check_zip) !== 'Zip is complete') {
-        //         form_set_error(
-        //             t('Invalid Zip in area shapefile'),
-        //             t('The "Area Shapefile" field is required for subscriptions of type "Upload Shapefile." Please upload a valid zip file containing .shp, .shx, .prj and .dbf files.')
-        //         );
-        //         return;
-        //     }
-        //
-        //     $target_directory = (string) $zip->fid . '_' . str_replace('.zip', '', $zip->filename);
-        //     $target_directory = str_replace(' ', '', $target_directory);
-        //     drupal_mkdir('public://shapefiles/' . $target_directory);
-        //
-        //     // cache this command since it is always the same
-        //     $remove_extracted_command = $python_path . 'removeExtractedZip.py ' . 'sites/default/files/shapefiles/' . $target_directory;
-        //
-        //     $shapefile = shell_exec($python_path . 'extractZip.py ' . $zip_path . ' sites/default/files/shapefiles/' . $target_directory);
-        //     $shapefile = 'sites/default/files/shapefiles/' . $target_directory . '/' . $shapefile;
-        //
-        //     // converts the shapefile to ESPG:4326 as required by drupal if it is not
-        //     $check_projection = shell_exec($python_path . 'checkSpatialRef.py ' . $shapefile);
-        //     if (trim($check_projection) === 'PYTHON ERROR') {
-        //         shell_exec($remove_extracted_command);
-        //         form_set_error(
-        //             t('Invalid shapefile in area shapefile'),
-        //             t('There is an error in your shapefile. Please verify your data and try again.')
-        //         );
-        //         return;
-        //     } else if (trim($check_projection) === 'FALSE') {
-        //         shell_exec($python_path . 'reprojectShp.py ' . $shapefile);
-        //     }
-        //
-        //     // reduces the verticies to < 10000 to reduce the complexity of the server intersections
-        //     $check_vertices = shell_exec($python_path . 'checkVerticies.py ' . $shapefile);
-        //     if (trim($check_vertices) === 'PYTHON ERROR') {
-        //         shell_exec($remove_extracted_command);
-        //         form_set_error(
-        //             t('Invalid shapefile in area shapefile'),
-        //             t('There is an error in your shapefile. Please verify your data and try again.')
-        //         );
-        //         return;
-        //     } else if ((int) $check_vertices > 10000) {
-        //         shell_exec($python_path . 'simplifyShp.py ' . $shapefile);
-        //     }
-        //
-        //     $geojson = shell_exec($python_path . 'shpToGeoJSON.py ' . $shapefile);
-        //
-        //     form_set_value($form['field_area_geojson'], array(LANGUAGE_NONE => array(0 => array('geom' => $geojson))), $form_state);
-        //     shell_exec($remove_extracted_command);
-        // } else if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
         if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
             if ($node->field_custom_area[LANGUAGE_NONE][0]['geom'] === '') {
                 form_set_error(
