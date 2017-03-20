@@ -17,7 +17,6 @@
      */
     function shapefile_error(msg){
       $('#shapefile-upload-error').remove();
-      deleteShapes();
       $('.scene-container').empty()
       $('.field-name-field-area-shapefile ').prepend('<div id="shapefile-upload-error" class="alert alert-danger" role="alert"><strong>Error getting shapefile: </strong>' + msg + '</dv>');
       $('#edit-actions').prepend('<div id="shapefile-upload-error-submit" class="alert alert-danger" role="alert"><strong>Error getting shapefile: </strong>' + msg + '.  Try to upload the shapefile again.</dv>');
