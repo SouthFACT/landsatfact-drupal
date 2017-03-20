@@ -287,15 +287,15 @@ function lsf_subscription_form_alter(&$form, &$form_state, $form_id) {
     if ($form_id === 'subscription_node_form') {
         $form['actions']['submit']['#value'] = 'Submit';
 
-        $lsf_request_path = drupal_get_path('module', 'lsf_request');
-        drupal_add_js($lsf_request_path . '/libs/geojsonhint.js' , array('type' => 'file', 'scope' => 'footer'));
-        drupal_add_js($lsf_request_path . '/libs/jszip.min.js' , array('type' => 'file', 'scope' => 'footer'));
-        drupal_add_js($lsf_request_path . '/libs/shp.min.js' , array('type' => 'file', 'scope' => 'footer'));
+        $lsf_subscription_path = drupal_get_path('module', 'lsf_subscription');
+        drupal_add_js($lsf_subscription_path . '/libs/geojsonhint.js' , array('type' => 'file', 'scope' => 'footer'));
+        drupal_add_js($lsf_subscription_path . '/libs/jszip.min.js' , array('type' => 'file', 'scope' => 'footer'));
+        drupal_add_js($lsf_subscription_path . '/libs/shp.min.js' , array('type' => 'file', 'scope' => 'footer'));
         if (array_key_exists('js', $form['#attached']) && is_array($form['#attached']['js'])) {
-            $form['#attached']['js'][] = $lsf_request_path . '/request_handlers.js';
+            $form['#attached']['js'][] = $lsf_subscription_path . '/request_handlers.js';
        } else {
             $form['#attached']['js'] = array(
-                $lsf_request_path . '/request_handlers.js',
+                $lsf_subscription_path . '/request_handlers.js',
             );
         }
     }
