@@ -23,6 +23,24 @@ function _lsf_subscription_set_database_connection() {
     db_set_active($database);
 }
 
+include_once 'subscription_ajax.inc';
+
+/**
+ * Implements hook menu
+ */
+function lsf_subscription_menu() {
+    // adds ajax endpoint to poll the postgres database
+    $items['subscription/ajax'] = array(
+        'title' => 'SUBSCRIPTION REQUEST CALLBACK ENDPOINT',
+        'type' => MENU_CALLBACK,
+        'page callback' => '_lsf_subscription_ajax',
+        'access callback' => TRUE,
+    );
+
+    return $items;
+}
+
+
 // Implements hook_node_validate
 function lsf_subscription_node_validate($node, $form, &$form_state) {
 
@@ -292,10 +310,12 @@ function lsf_subscription_form_alter(&$form, &$form_state, $form_id) {
         drupal_add_js($lsf_subscription_path . '/libs/jszip.min.js' , array('type' => 'file', 'scope' => 'footer'));
         drupal_add_js($lsf_subscription_path . '/libs/shp.min.js' , array('type' => 'file', 'scope' => 'footer'));
         if (array_key_exists('js', $form['#attached']) && is_array($form['#attached']['js'])) {
-            $form['#attached']['js'][] = $lsf_subscription_path . '/request_handlers.js';
+            $form['#attached']['js'][] = $lsf_subscription_path . '/subscription_handlers.js';
+            $form['#attached']['js'][] = $lsf_subscription_path . '/libs/wellknown.js';
        } else {
             $form['#attached']['js'] = array(
-                $lsf_subscription_path . '/request_handlers.js',
+                $lsf_subscription_path . '/subscription_handlers.js',
+                $lsf_subscription_path . '/libs/wellknown.js',
             );
         }
     }

@@ -8,6 +8,7 @@
     var xhr;
     var geojson;
     var alt_scenes = {}; // caches alternate scenes keyed by id.
+    var disabled_scenes = [];
 
     // caches selectors used for the svg scene maps
     var initial_table_selector = "#map-d3";
@@ -306,6 +307,7 @@
 	$descContainer.append($('<p><span>Date</span>: ' + scene.acquistion_date + '</p>'));
 
 	$descContainer.append($('<p class="' + classCC + '" ><span class="' + classCC + '" >Cloud Cover</span>: ' + scene.cc_full + '%</p>'));
+	$descContainer.append($('<p><label><input type="checkbox">Do not use</label></p>'));
         $container.append($descContainer);
 	return $container;
     }
