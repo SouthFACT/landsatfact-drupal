@@ -1,0 +1,4 @@
+name = LandSatFACT AOI subscription handler
+description = Adds AJAX functionality to subscribe/unsubscribe to AOI's
+package = LandSatFACT
+core = 7.x
