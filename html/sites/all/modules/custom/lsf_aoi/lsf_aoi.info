@@ -1,0 +1,4 @@
+name = NEW LandSatFACT Subscription
+description = Manages user subscriptions on the LandSatFACT site
+package = LandSatFACT
+core = 7.x

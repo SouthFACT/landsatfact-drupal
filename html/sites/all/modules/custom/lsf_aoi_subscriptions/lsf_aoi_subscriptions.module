@@ -22,7 +22,12 @@ function lsf_aoi_subscriptions_menu() {
  */
 function lsf_aoi_subscriptions_node_view($node, $view_mode, $langcode) {
     if ($node->type === 'aoi' && $view_mode === 'full') {
-        $aoi_vars = array('aoi_subscription' => array('nid' => $node->nid));
+        global $user;
+
+        $aoi_vars = array('aoi_subscription' => array(
+            'nid' => $node->nid,
+            'subscribed' => _check_if_user_is_subscribed($user->uid, $node->nid),
+        ));
         $node->content['#attached']['js'][] = array(
             'data' => $aoi_vars,
             'type' => 'setting',
@@ -46,17 +51,37 @@ function _lsf_aoi_subscription_handler() {
 }
 
 function _handle_user_subscribe ($nid) {
-    return _create_aoi_subscription_node($nid);
-}
-
-function _create_aoi_subscription_node ($nid) {
     global $user;
 
-    // entity_create replaces the procedural steps in the first example of
-    // creating a new object $node and setting its 'type' and uid property
+    $uid = $user->uid;
+
+    if (_check_if_user_is_subscribed($uid, $nid) === FALSE) {
+        return _create_aoi_subscription_node($uid, $nid);
+    } else {
+        return _unsubscribe_user_from_aoi($uid, $nid);
+    }
+}
+
+function _check_if_user_is_subscribed ($uid, $nid) {
+    $result = db_query('SELECT COUNT(*) FROM field_data_field_parent_aoi AS aoi LEFT JOIN node ON aoi.entity_id=node.nid WHERE aoi.bundle=\'aoi_subscription\' AND node.uid = :uid AND aoi.field_parent_aoi_target_id = :nid', array(':uid' => $uid, ':nid' => $nid));
+    return (intval($result->fetchAssoc()['COUNT(*)']) > 0);
+}
+
+function _unsubscribe_user_from_aoi ($uid, $nid) {
+    $subscription_nid = _get_subscription_nid($uid, $nid);
+    node_delete($subscription_nid);
+    return 'unsubscribed';
+}
+
+function _get_subscription_nid ($uid, $nid) {
+    $result = db_query('SELECT aoi.entity_id FROM field_data_field_parent_aoi AS aoi LEFT JOIN node ON aoi.entity_id=node.nid WHERE aoi.bundle=\'aoi_subscription\' AND node.uid = :uid AND aoi.field_parent_aoi_target_id = :nid', array(':uid' => $uid, ':nid' => $nid));
+    return $result->fetchAssoc()['entity_id'];
+}
+
+function _create_aoi_subscription_node ($uid, $nid) {
     $values = array(
         'type' => 'aoi_subscription',
-        'uid' => $user->uid,
+        'uid' => $uid,
         'status' => 1,
         'comment' => 0,
         'promote' => 0,
@@ -68,25 +93,20 @@ function _create_aoi_subscription_node ($nid) {
     // to make getting and setting values easier
     $ewrapper = entity_metadata_wrapper('node', $entity);
 
-    // Using the wrapper, we do not have to worry about telling Drupal
-    // what language we are using. The Entity API handles that for us.
     $ewrapper->title->set('AOI subscription for user');
 
-    // Setting the value of an entity reference field only requires passing
-    // the entity id (e.g., nid) of the entity to which you want to refer
-    // Note that the entity id (e.g., nid) must be passed as an integer not a
-    // string
+    // Set the value of the entity reference field
+    // Note that the entity id must be passed as an integer not a string
     $entity->field_parent_aoi[LANGUAGE_NONE][] = array(
         'target_id' => intval($nid),
         'target_type' => 'node',
     );
-    //    $ewrapper->parent_aoi->set(intval($ref_nid));
 
     // Now just save the wrapper and the entity
     // There is some suggestion that the 'true' argument is necessary to
     // the entity save method to circumvent a bug in Entity API. If there is
     // such a bug, it almost certainly will get fixed, so make sure to check.
     $ewrapper->save();
-    return intval($nid);
-        //    return 'success';
+
+    return 'success';
 }

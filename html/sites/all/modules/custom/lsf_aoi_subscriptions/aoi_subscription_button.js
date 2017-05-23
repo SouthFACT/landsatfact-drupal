@@ -6,12 +6,25 @@
     var nid;
 
     function buildSubButton () {
-	nid = window.Drupal.settings.aoi_subscription.nid;
+	var aoi_settings = window.Drupal.settings.aoi_subscription;
+
+	nid = aoi_settings.nid;
 
 	var button = $("<button></button>")
 	    .addClass("subscription-button")
-	    .text("+ Subscribe")
+	    .toggleClass("subscribed", aoi_settings.subscribed)
 	    .on("click", handleSubButtonClick);
+
+	var buttonSub = $("<span></span>")
+	    .addClass("subscribe-text")
+	    .text("+ Subscribe");
+
+	var buttonUnsub = $("<span></span>")
+	    .addClass("unsubscribe-text")
+	    .text("- Unsubscribe");
+
+	button.append(buttonSub);
+	button.append(buttonUnsub);
 
 	$(".node-aoi").before(button);
     }
@@ -30,6 +43,7 @@
 	    },
 	    success : function (result) {
 		console.log(result);
+		toggleButtonType();
 		xhr = undefined;
 	    },
 	    error : function (jqXHR, textStatus, errorThrown) {
@@ -39,5 +53,9 @@
 		console.log(errorThrown);
 	    }
 	});
+    }
+
+    function toggleButtonType () {
+	$(".subscription-button").toggleClass("subscribed");
     }
 }(window.jQuery));

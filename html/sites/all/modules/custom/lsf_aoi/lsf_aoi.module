@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Implements hook_node_view
+ *
+ * Adds js files for aoi's and aoi notifications
+ */
+function lsf_aoi_node_view($node, $view_mode, $langcode) {
+    if ($node->type === 'aoi') {
+        $path = drupal_get_path('module', 'lsf_aoi') . '/aoi_notification_table.js';
+        $node->content['#attached']['js'][] = $path;
+    } else if ($node->type === 'aoi_notification') {
+        $path = drupal_get_path('module', 'lsf_aoi') . '/aoi_notification.js';
+        $node->content['#attached']['js'][] = $path;
+    }
+}
