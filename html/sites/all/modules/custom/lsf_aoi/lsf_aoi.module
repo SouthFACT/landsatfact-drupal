@@ -1,5 +1,28 @@
 <?php
 
+// This function sets up the connection to the LSF database using the config file
+// that is tracked outside of git.
+function _lsf_aoi_set_database_connection() {
+    $config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
+    $username = $config_info['pgsql_connection']['username'];
+    $password = $config_info['pgsql_connection']['password'];
+    $host = $config_info['pgsql_connection']['host'];
+    $port = $config_info['pgsql_connection']['port'];
+    $driver = $config_info['pgsql_connection']['driver'];
+    $database = $config_info['pgsql_connection']['database'];
+    $lsf_database = array(
+        'database' => $database,
+        'username' => $username,
+        'password' => $password,
+        'host' => $host,
+        'port' => $port,
+        'driver' => $driver,
+    );
+
+    Database::addConnectionInfo($database, 'default', $lsf_database);
+    db_set_active($database);
+}
+
 /**
  * Implements hook_node_view
  *
@@ -13,4 +36,109 @@ function lsf_aoi_node_view($node, $view_mode, $langcode) {
         $path = drupal_get_path('module', 'lsf_aoi') . '/aoi_notification.js';
         $node->content['#attached']['js'][] = $path;
     }
+}
+
+// Implements hook_node_validate
+function lsf_aoi_node_validate($node, $form, &$form_state) {
+    if ($node->type === 'aoi') {
+        if ($node->field_area_geojson['und'][0]['geom']===''){
+            form_set_error(
+                t('No Area of Interest.'),
+                t('There is no Area of interest defined. Please select a valid area of interest or shapefile and try again.  Thanks!')
+            );
+            return;
+        }
+
+        if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
+            if ($node->field_custom_area[LANGUAGE_NONE][0]['geom'] === '') {
+                form_set_error(
+                    t('custom area missing value'),
+                    t('Subscriptions of type "Draw Area" require a polygon to be drawn onto the "Custom Area" map.')
+                );
+                return;
+            }
+        } else if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'select_county') {
+            $state = strtolower($node->field_state[LANGUAGE_NONE][0]['value']);
+            if ($state === '') {
+                form_set_error(
+                    t('select county missing data'),
+                    t('Subscriptions of type "Select County" require both a state and county to be chosen.')
+                );
+                return;
+            }
+            $county = 'field_' . $state . '_counties';
+            if (!isset($node->{$county}[LANGUAGE_NONE][0]) || !isset($node->{$county}[LANGUAGE_NONE][0]['value']) || $node->{$county}[LANGUAGE_NONE][0]['value'] === '') {
+                form_set_error(
+                    t('select county missing data'),
+                    t('Subscriptions of type "Select County" require both a state and county to be chosen.')
+                );
+                return;
+            }
+        }
+    }
+}
+
+/**
+ * Implements hook_form_alter
+ */
+function lsf_aoi_form_alter(&$form, &$form_state, $form_id) {
+    if ($form_id === 'aoi_node_form') {
+        $form['actions']['submit']['#value'] = 'Submit';
+
+        $lsf_aoi_path = drupal_get_path('module', 'lsf_aoi');
+        $lsf_subscription_path = drupal_get_path('module', 'lsf_subscription');
+        drupal_add_js($lsf_subscription_path . '/libs/geojsonhint.js' , array('type' => 'file', 'scope' => 'footer'));
+        drupal_add_js($lsf_subscription_path . '/libs/jszip.min.js' , array('type' => 'file', 'scope' => 'footer'));
+        drupal_add_js($lsf_subscription_path . '/libs/shp.min.js' , array('type' => 'file', 'scope' => 'footer'));
+        if (array_key_exists('js', $form['#attached']) && is_array($form['#attached']['js'])) {
+            $form['#attached']['js'][] = $lsf_aoi_path . '/aoi_node_add_handlers.js';
+            $form['#attached']['js'][] = $lsf_subscription_path . '/libs/wellknown.js';
+       } else {
+            $form['#attached']['js'] = array(
+                $lsf_subscription_path . '/subscription_handlers.js',
+                $lsf_subscription_path . '/libs/wellknown.js',
+            );
+        }
+    }
+}
+
+// Implements hook_node_insert
+//
+// @param array node
+function lsf_aoi_node_insert($node) {
+    if ($node->type === 'aoi') {
+        _insert_aoi_in_postgres($node);
+    }
+}
+
+// Inserts aoi into the postgres table for a users subscription.
+//
+// @param array $node New node object that is being created
+function _insert_aoi_in_postgres($node) {
+    geophp_load();
+    $geom = geophp::load($node->field_area_geojson[LANGUAGE_NONE][0]['geom']);
+    $geojson_writer = new GeoJSON();
+
+    _lsf_aoi_set_database_connection();
+
+    if ($node->field_public[LANGUAGE_NONE][0]['value'] === 1) {
+        $public = TRUE;
+    } else {
+        $public = FALSE;
+    }
+
+    try {
+        $result = db_query('SELECT * FROM insert_alert_aoi(:geojson, :title, :nid, :public)',
+                           array(
+                               ':geojson' => $geojson_writer->write($geom),
+                               ':title' => $node->title,
+                               ':nid' => $node->nid,
+                               ':public' => $public,
+                           ));
+    } catch (Exception $e) {
+        drupal_set_message('Exception: ' . $e);
+    }
+
+    // Sets the db back to the default one
+    db_set_active();
 }
