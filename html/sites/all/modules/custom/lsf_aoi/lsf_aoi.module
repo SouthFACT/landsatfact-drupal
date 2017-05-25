@@ -107,7 +107,8 @@ function lsf_aoi_form_alter(&$form, &$form_state, $form_id) {
 // @param array node
 function lsf_aoi_node_insert($node) {
     if ($node->type === 'aoi') {
-        _insert_aoi_in_postgres($node);
+        $aoi_id = _insert_aoi_in_postgres($node);
+        register_shutdown_function('_aoi_post_insert_handler', $node->nid, $aoi_id);
     }
 }
 
@@ -135,10 +136,35 @@ function _insert_aoi_in_postgres($node) {
                                ':nid' => $node->nid,
                                ':public' => $public,
                            ));
+        $aoi_id = $result->fetchAssoc()['insert_alert_aoi'];
     } catch (Exception $e) {
         drupal_set_message('Exception: ' . $e);
     }
 
     // Sets the db back to the default one
     db_set_active();
+
+    return $aoi_id;
+}
+
+function _aoi_post_insert_handler($nid, $aoi_id) {
+    $node = node_load($nid);
+    if ($node && $aoi_id) {
+        _lsf_aoi_set_database_connection();
+        try {
+            $result = db_query('SELECT * FROM get_acres_aoi_alert_subscription(:aoi)',
+                               array(
+                                   ':aoi' => $aoi_id,
+                               ));
+            $acres = $result->fetchAssoc()['get_acres_aoi_alert_subscription'];
+        } catch (Exception $e) {
+            drupal_set_message('Exception: ' . $e);
+        }
+        db_set_active();
+
+        $node_wrapper = entity_metadata_wrapper('node', $node);
+        $node_wrapper->field_aoi_area_acres->set($acres);
+        $node_wrapper->field_aoi_id->set($aoi_id);
+        $node_wrapper->save();
+    }
 }
