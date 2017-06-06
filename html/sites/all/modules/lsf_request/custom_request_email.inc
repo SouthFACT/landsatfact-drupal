@@ -170,7 +170,7 @@ function _lsf_make_custom_request_email(){
       }
 
       //create email subject 
-      $subject = 'Landsat FACT custom request complete. (' . $node_id .')';
+      $subject = 'SouthFACT custom request complete. (' . $node_id .')';
 
       // add 3 days to date
       $expireDate=Date('l, F jS, Y', strtotime("+45 days"));
