@@ -140,7 +140,7 @@ function _lsf_subscriptions_send() {
       //build the  custom comment.  this will trigger the email
       $nid = user_profile_comments_get_profile_entity($user_id)->nid;
 
-      $subject =' New LandsatFACT products have been generated'; 
+      $subject =' New SouthFACT products have been generated'; 
     }
 
     //generate the comment object
