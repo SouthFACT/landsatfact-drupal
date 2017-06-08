@@ -240,7 +240,7 @@
         $("#edit-field-area-shapefile-und-0-upload").on("change", handle_shp_upload);
         $(".geofield_wkt").on("change", handle_draw_area_change);
 
-//        add_openlayers_change_listeners(); 
+        add_openlayers_change_listeners(); 
     });
 
 }());

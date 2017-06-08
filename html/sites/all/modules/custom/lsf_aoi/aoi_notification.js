@@ -19,11 +19,11 @@
     function createLayer (date) {
         var layer = new OpenLayers.Layer.WMS(
             "SWIR Threshold for " + date,
-            "http://landsatfact-data.nemac.org/lsf-vrt-swir-threshold",
+            "http://landsatfact-data-dev.nemac.org/lsf-vrt-swir-threshold",
             {
 		projection  : new OpenLayers.Projection("EPSG:900913"),
 		units       : "m",
-		layers      : "SWIR-archiveMaskForForestCloudGap",
+		layers      : "SWIR-archiveMaskForCDLForestCloudGap",
 		transparent : true,
 		time        : date
             }

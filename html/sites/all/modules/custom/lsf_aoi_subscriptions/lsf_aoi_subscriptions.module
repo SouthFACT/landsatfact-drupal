@@ -1,5 +1,7 @@
 <?php
 
+include_once 'lsf_subscription_postgres.inc';
+
 /**
  * Implements hook menu
  */
@@ -21,13 +23,29 @@ function lsf_aoi_subscriptions_menu() {
  * Adds js files for aoi subscriptions. Adds nid to page javascript.
  */
 function lsf_aoi_subscriptions_node_view($node, $view_mode, $langcode) {
-    if ($node->type === 'aoi' && $view_mode === 'full') {
-        global $user;
+    if ($node->type === 'aoi_notification' && $view_mode === 'full') {
+        $nid = $node->field_parent_aoi[LANGUAGE_NONE][0]['target_id'];
+    } elseif ($node->type === 'aoi' && $view_mode === 'full') {
+        $nid = $node->nid;
+    }
+    if (($node->type === 'aoi' || $node->type === 'aoi_notification') && $view_mode === 'full') {
+        if (!user_is_logged_in()) {
+            $logged_in = FALSE;
+            $subscribed = FALSE;
+        } else {
+            global $user;
+            $logged_in = TRUE;
+            $subscribed = _check_if_user_is_subscribed($user->uid, $nid);
+        }
 
-        $aoi_vars = array('aoi_subscription' => array(
-            'nid' => $node->nid,
-            'subscribed' => _check_if_user_is_subscribed($user->uid, $node->nid),
-        ));
+        $aoi_vars = array(
+            'is_node' => TRUE,
+            'aoi_subscription' => array(
+                'nid' => $nid,
+                'subscribed' => $subscribed,
+                'logged_in' => $logged_in,
+            )
+        );
         $node->content['#attached']['js'][] = array(
             'data' => $aoi_vars,
             'type' => 'setting',
@@ -38,10 +56,62 @@ function lsf_aoi_subscriptions_node_view($node, $view_mode, $langcode) {
     }
 }
 
+function lsf_aoi_page_alter(&$page) {
+    $views_page = views_get_page_view();
+
+    if (isset($views_page->name) && ($views_page->name == 'user_aoi_listing' || $views_page->name == 'public_aoi_listing')) {
+        if (!user_is_logged_in()) {
+            $logged_in = FALSE;
+            $subscribed = FALSE;
+        } else {
+            global $user;
+            $logged_in = TRUE;
+        }
+        global $user;
+        $aoi_vars = array('is_node' => FALSE, 'aoi_subscription' => array());
+        for ($i=0; $i<count($views_page->result); $i++) {
+            $nid = _get_nid_from_view_result($views_page->result[$i]);
+            if (!$nid) {
+                continue;
+            }
+            if ($logged_in) {
+                $subscribed = _check_if_user_is_subscribed($user->uid, $nid);
+            }
+            $aoi_vars['aoi_subscription'][$i] = array(
+                'nid' => $nid,
+                'subscribed' => $subscribed,
+                'logged_in' => $logged_in,
+            );
+        }
+
+        drupal_add_js($aoi_vars, 'setting');
+        drupal_add_js(
+            drupal_get_path('module', 'lsf_aoi_subscriptions') . '/aoi_subscription_button.js',
+            array('type' => 'file', 'scope' => 'footer')
+        );
+    }
+}
+
+function _get_nid_from_view_result($result) {
+    if (isset($result->node_field_data_field_parent_aoi_nid)) {
+        return $result->node_field_data_field_parent_aoi_nid;
+    }
+    if (isset($result->nid)) {
+        return $result->nid;
+    }
+    return false;
+}
+
+
 /**
  * General purpose handler for managing subscriptions to AOI's
  */
 function _lsf_aoi_subscription_handler() {
+    if (!user_is_logged_in()) {
+        drupal_goto('user/register');
+        return;
+    }
+
     if ($_REQUEST['type'] === 'subscription_add') {
         $result = _handle_user_subscribe($_POST['nid']);
     }
