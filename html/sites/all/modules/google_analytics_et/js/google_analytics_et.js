@@ -66,7 +66,9 @@ function trackEvent($obj, id, options, category, action, opt_label, opt_value, o
 
   category = category == '!text' ? String($obj.text()) : (category == '!href' ? href : (category == '!currentPage' ? String(window.location.href) : String(category)));
   action = action == '!text' ? String($obj.text()) : (action == '!href' ? href : (action == '!currentPage' ? String(window.location.href) : String(action)));
-  opt_label = opt_label == '!text' ? String($obj.text()) : (opt_label == '!href' ? href : (opt_label == '!currentPage' ? String(window.location.href) : String(opt_label)));
+  //opt_label = opt_label == '!text' ? String($obj.text()) : (opt_label == '!href' ? href : (opt_label == '!currentPage' ? String(window.location.href) : String(opt_label)));
+  //opt_label = opt_label == '!text' ? String($obj.text()) : (opt_label == '!href' ? href : (opt_label == '!currentPage' ? String(window.location.href) : (opt_label == '!value' ? String($obj.val()) : String(opt_label))) );
+  opt_label = opt_label == '!text' ? String($obj.text()) : (opt_label == '!href' ? href : (opt_label == '!currentPage' ? String(window.location.href) : (opt_label == '!value' ? String($obj.val()) : (opt_label == '!checkbox' ? String($obj.is(":checked")) : String(opt_label))) ) );
 
   // Google complains if category or action are not set so we fail gracefully.
   if (!category || !action) {
