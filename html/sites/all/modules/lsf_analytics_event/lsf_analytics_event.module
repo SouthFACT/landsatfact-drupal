@@ -473,6 +473,15 @@ function _lsf_analytics_event_set_selectors_array() {
      'label' => '!checkbox',
      'value' => 0,
      'noninteraction' => FALSE,
+   ),
+    array(
+      'event' => 'click',
+      'selector' => '.node-aoi-form .field-name-field-area-type .form-type-radio',
+      'category' => 'AOI Alerts',
+      'action' => 'Click Area Type',
+      'label' => '!text',
+      'value' => 0,
+      'noninteraction' => FALSE,
    )
 
 
