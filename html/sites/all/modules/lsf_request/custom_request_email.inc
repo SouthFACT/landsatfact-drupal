@@ -16,7 +16,7 @@ function _lsf_subscription_generate_comment($uid, $nid, $subject, $body) {
     $comment->cid = 0;
     $comment->pid = 0;
     $comment->uid;
-    $comment->mail = 'info@landsatfact.com';
+    $comment->mail = 'info@southfact.com';
     $comment->created = time();
     $comment->is_anonymous = 0;
     $comment->homepage = '';
