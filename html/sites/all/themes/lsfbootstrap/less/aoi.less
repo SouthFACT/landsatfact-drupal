@@ -1,0 +1,180 @@
+.group-aoi-notification-header {
+    width: 100%;
+    margin: 10px 0 0;
+    border: 1px solid #555;
+
+    > .field {
+	display: inline-block;
+	width: 50%;
+    }
+
+    .field-label, .field-items {
+	display: inline-block;
+	height: 60px;
+	line-height: 50px;
+	float: none;
+    }
+
+    .field-label {
+	font-weight: bold;
+	width: 150px;
+	text-align: center;
+	padding: 5px;
+	color: #fff;
+	background-color: #3e4320;
+    }
+
+    .field-items {
+	padding: 5px 20px;
+    }
+}
+
+.group-aoi-notification-metadata {
+    display: table;
+    width: 80%;
+    margin: 20px 10% 0;
+    border-collapse: collapse;
+
+    > .field {
+	display: table-row;
+	border-collapse: collapse;
+    }
+
+    .field-label, .field-items {
+	display: table-cell;
+	height: 60px;
+	float: none;
+	vertical-align: middle;
+	border: 1px solid #555;
+	border-collapse: collapse;
+    }
+
+    .field-label {
+	font-weight: bold;
+	width: 150px;
+	text-align: center;
+	color: #fff;
+	background-color: #3e4320;
+    }
+
+    .field-items {
+	padding: 5px 20px;
+    }
+}
+
+.view-aoi-notification-table {
+    .table td {
+	vertical-align: middle;
+    }
+
+    tbody tr {
+	cursor: pointer;
+    }
+
+    .aoi-layer-loaded {
+	background-color: #effeff;
+    }
+}
+
+.unsubscribe-text {
+    display: none;
+}
+
+.subscribed {
+    .subscribe-text {
+	display: none;
+    }
+
+    .unsubscribe-text {
+	display: inline;
+    }
+}
+
+.aoi-button {
+    display: inline-block;
+    max-width: 100%;
+    font-size: 20px;
+    background: #885331;
+    padding: 8px 15px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    border-radius: 4px;
+    color: #fff !important;
+
+    &:hover, &:focus {
+	background: #3e441e;
+	text-decoration: none;
+    }
+}
+
+.subscription-button {
+    background: #885331;
+    color: #fff;
+    border-radius: 4px;
+    border: 0;
+
+    &:hover {
+	background: #3e441e;
+    }
+}
+
+.user-page-aoi-block {
+    text-align: center;
+
+    h3 {
+	color: #c27d30;
+	margin-top: 20px;
+	margin-bottom: 5px;
+	font-size: 28px;
+	text-decoration: none;
+    }
+}
+
+.user-page-block {
+    margin-top: 50px;
+}
+
+.user-page-description {
+    max-width: 570px;
+    margin: 0 auto;
+}
+
+.user-page-links {
+    margin-top: 15px;
+
+    a {
+	background-color: #885331;
+	color: #fff !important;
+	text-decoration: none;
+	font-size: 20px;
+	display: inline-block;
+	padding: 10px;
+	border-radius: .25em;
+
+	&:hover {
+	    cursor: pointer;
+	    background-color: #3e441e;
+	}
+
+	&:first-child {
+	    margin-right: 30px;
+	}
+    }
+}
+
+.aoi-node-buttons-wrapper {
+    margin-top: 15px;
+
+    .aoi-button {
+	margin-bottom: 0;
+    }
+}
+
+/**
+ * AOI add page.
+ */
+.page-node-add-aoi {
+    .field-name-body, .field-name-field-aoi-area-acres, .field-name-field-aoi-id, .field-name-field-aoi-subscribe-button {
+	display: none;
+    }
+}
