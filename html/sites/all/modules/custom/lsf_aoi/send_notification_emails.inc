@@ -1,7 +1,8 @@
 #!/usr/bin/env drush
 <?php
 
-include(drupal_get_path('module', 'lsf_aoi') . '/db_helpers.php');
+include_once(drupal_get_path('module', 'lsf_aoi') . '/db_helpers.php');
+include_once(drupal_get_path('module', 'lsf_aoi') . '/helpers.php');
 
 // Main
 _lsf_aoi_notify_users_of_new_events();
@@ -74,23 +75,14 @@ function _lsf_aoi_format_email_config($email_config, $params) {
   $email_body_values = array(
     $params['user'],
     $params['aoi_name'],
-    _lsf_aoi_build_node_url_alias_by_nid($params['aoi_event_nid'], TRUE),
-    _lsf_aoi_build_node_url_alias_by_nid($params['aoi_parent_nid'], TRUE),
+    _lsf_aoi_build_node_url_alias_by_nid($params['aoi_event_nid'], array('source' => 'email')),
+    _lsf_aoi_build_node_url_alias_by_nid($params['aoi_parent_nid'], array('source' => 'email')),
     $params['aoi_event_date'],
     $params['aoi_event_day'],
   );
   $email_config['body'] = str_replace($email_body_keys, $email_body_values, $email_config['body']);
   $email_config['subject'] = str_replace($email_body_keys, $email_body_values, $email_config['subject']);
   return $email_config;
-}
-
-function _lsf_aoi_build_node_url_alias_by_nid($nid, $is_email) {
-  global $base_url;
-  $url = $base_url . url('node/'.$nid)
-  if ($is_email) {
-    $url = $url . '?source=email';
-  }
-  return $url;
 }
 
 function _lsf_aoi_make_sure_base_url_is_defined() {

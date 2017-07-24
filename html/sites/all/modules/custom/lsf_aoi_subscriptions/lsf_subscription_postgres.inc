@@ -4,7 +4,7 @@
 //
 // @param array node
 function lsf_aoi_subscriptions_node_insert($node) {
-    if ($node->type === 'aoi_subscription') {
+    if ($node->type === 'aoi_subscription' && _lsf_aoi_subscription_check_legacy($node->field_parent_aoi[LANGUAGE_NONE][0]['target_id']) === FALSE) {
         _insert_subscription_in_postgres($node);
     }
 }
@@ -13,7 +13,7 @@ function lsf_aoi_subscriptions_node_insert($node) {
 //
 // @param array node
 function lsf_aoi_subscriptions_node_delete($node) {
-    if ($node->type === 'aoi_subscription') {
+    if ($node->type === 'aoi_subscription' && _lsf_aoi_subscription_check_legacy($node->field_parent_aoi[LANGUAGE_NONE][0]['target_id']) === FALSE) {
         _remove_subscription_in_postgres($node);
     }
 }

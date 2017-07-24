@@ -25,7 +25,7 @@
 	    },
 	    success : function (result) {
 		geojson = result["get_countybygeoid"];
-		$("#edit-field-area-geojson-und-0-geom").val(geojson);
+		$("#edit-field-area-geojson-und-0-geom").val(geojson).change();
 
 		xhr = undefined;
 	    },
@@ -59,7 +59,7 @@
 	var area_geojson = wellknown.parse(area_wkt);
 
 	geojson = JSON.stringify(area_geojson);
-	$("#edit-field-area-geojson-und-0-geom").val(geojson);
+	$("#edit-field-area-geojson-und-0-geom").val(geojson).change();
     }
 
     function add_openlayers_change_listeners () {
@@ -131,7 +131,7 @@
 		shapefile_error('No Features in shapefile');
             } else {
 		// good shape file add and find scenes.
-		$("#edit-field-area-geojson-und-0-geom").val(geojson);
+		$("#edit-field-area-geojson-und-0-geom").val(geojson).change();
             }
 	});
     }
@@ -209,6 +209,97 @@
 	}
     }
 
+    function handle_geojson_change () {
+	var geojson = $(this).val();
+	console.log("hey");
+	console.log(geojson)
+	if (geojson === "") return;
+
+	xhr = $.ajax({
+	    type : "POST",
+	    url  : "/aoi/ajax",
+	    data : {
+		"type"  : "geo_acres",
+		"geojson" : geojson
+	    },
+	    success : function (result) {
+		var MAX_ACRES = 50000.0;
+		var acres = result["get_acres_from_geojson"];
+
+		if (parseFloat(acres) > MAX_ACRES) {
+		    handleAreaTooLarge(acres);
+		} else {
+		    handleAreaWithinLimit(acres);
+		}
+
+		$("#edit-field-aoi-area-acres-und-0-value").val(parseFloat(acres).toFixed(3));
+
+		xhr = undefined;
+	    },
+	    error : function (jqXHR, textStatus, errorThrown) {
+		console.log("ERROR");
+		console.log(jqXHR);
+		console.log(textStatus);
+		console.log(errorThrown);
+	    }
+	});
+    }
+
+    function handleAreaTooLarge (acres) {
+        removeAlertPopup();
+	insertAlertPopup(acres);
+	disableAoiCheckbox();
+    }
+
+    function handleAreaWithinLimit () {
+	removeAlertPopup();
+	enableAoiCheckbox();
+    }
+
+    function removeAlertPopup () {
+	$(".group-aoi-location .alert").remove();
+    }
+
+    function insertAlertPopup (acres) {
+	var popup = createAlertPopup(acres);
+	$(".group-aoi-location .fieldset-wrapper").prepend(popup);
+    }
+
+    function createAlertPopup (acres) {
+	var alertStart = $(document.createElement("strong"));
+	var alertText = $(document.createElement("span"));
+	var alertPopup = $(document.createElement("div"));
+
+	// trims the decimal and adds in commas at the thousands markers
+	acres = acres.replace(/\..*/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+	alertStart.text("Heads up! ");
+	alertText.html("The area you selected is <strong>" + acres + "</strong> acres. We can only notify you when change occurs in an area this large. If you require zonal statistics to be generated for you please reduce the area to one with fewer than <strong>50,000</strong> acres.");
+	alertPopup.append(alertStart);
+	alertPopup.append(alertText);
+	alertPopup.addClass("alert").addClass("alert-info");
+
+	return alertPopup;
+    }
+
+    function disableAoiCheckbox () {
+	var $checkbox = $("#edit-field-generate-zonal-stats-und");
+	$checkbox.attr("disabled", true);
+
+	// cache for re-enabling
+	var checked = $checkbox.prop("checked");
+	$checkbox.data("checked", checked);
+	$checkbox.prop("checked", false);
+    }
+
+    function enableAoiCheckbox () {
+	var $checkbox = $("#edit-field-generate-zonal-stats-und");
+	$checkbox.attr("disabled", false);
+
+	var checked = $checkbox.data("checked");
+	$checkbox.prop("checked", checked);
+    }
+
     /**
      * google event tracker
      *  see google anatlyics events at https://developers.google.com/analytics/devguides/collection/analyticsjs/events
@@ -239,6 +330,8 @@
 
         $("#edit-field-area-shapefile-und-0-upload").on("change", handle_shp_upload);
         $(".geofield_wkt").on("change", handle_draw_area_change);
+
+	$("#edit-field-area-geojson-und-0-geom").on("change", handle_geojson_change);
 
         add_openlayers_change_listeners(); 
     });

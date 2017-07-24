@@ -118,8 +118,6 @@ function insert_custom_req_aoi_by_county($node, $form_state) {
     // Two date fields:
     $date1 = preg_split('/\s+/', $form_state['values']['field_select_dates']['und'][0]['value'])[0];
     $date2 = preg_split('/\s+/', $form_state['values']['field_select_dates']['und'][0]['value2'])[0];
-    dpm($date1);
-    dpm($date2);
 
     // Switch to the lsf db
     _lsf_request_set_database_connection();

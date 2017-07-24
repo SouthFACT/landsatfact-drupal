@@ -43,16 +43,15 @@ function lsf_subscription_menu() {
 
 // Implements hook_node_validate
 function lsf_subscription_node_validate($node, $form, &$form_state) {
-
-    if ($node->field_area_geojson['und'][0]['geom']===''){
-       form_set_error(
-           t('No Area of Interest.'),
-           t('There is no Area of interest defined. Please select a valid area of interest or shapefile and try again.  Thanks!')
-       );
-       return;
-    }
-
     if ($node->type === 'subscription') {
+        if ($node->field_area_geojson['und'][0]['geom']===''){
+            form_set_error(
+                t('No Area of Interest.'),
+                t('There is no Area of interest defined. Please select a valid area of interest or shapefile and try again.  Thanks!')
+            );
+            return;
+        }
+
         if (isset($node->field_area_type) && $node->field_area_type[LANGUAGE_NONE][0]['value'] === 'draw_area') {
             if ($node->field_custom_area[LANGUAGE_NONE][0]['geom'] === '') {
                 form_set_error(
@@ -332,6 +331,5 @@ function lsf_subscription_node_view($node, $view_mode, $langcode) {
     if ($node->type === 'subscription') {
         $path = drupal_get_path('module','lsf_subscription') . '/notification_table.js';
         $node->content['#attached']['js'][] = $path;
-        dpm($node);
     }
 }

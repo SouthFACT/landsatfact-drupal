@@ -1,48 +1,49 @@
 "use strict";
 
 (function ($) {
-    $.get('/sites/all/modules/lsf_subscription/mockup.csv', function(data) {
-	var products = processFileData(data);
-	var $table = buildTable(products);
-	$table.on("click", "a.date-loader", loadLayer);
-	$.ready(insertTable($table));
-	console.log(products);
-    });
 
-    function processFileData(data) {
-	var lines = data.split("\n");
-	var products = [];
-	var bbox;
-	lines.forEach(function (e) {
-	    var i;
+	$(document).ready(function () {
+		$.get('/sites/all/modules/lsf_subscription/mockup.csv', function(data) {
+			var products = processFileData(data);
+			var $table = buildTable(products);
+			$table.on("click", "tbody tr", loadLayer);
+			insertTable($table);
+		});
+	})
 
-	    var line = e.split(",");
+	function processFileData(data) {
+		var lines = data.split("\n");
+		var products = [];
+		var bbox;
+		lines.forEach(function (e) {
+			var i;
+			var line = e.split(",");
 
-	    bbox = bbox ? bbox : line[3];
+			bbox = bbox ? bbox : line[3];
 
-	    var product = {
-		"base": [],
-		"comparison": []
-	    };
-	    for (i = 0; i < products.length; i++) {
-		if (products[i].date === line[0]) {
-		    product = products[i];
-		    break;
-		}
-	    }
+			var product = {
+				"base": [],
+				"comparison": []
+			};
+			for (i = 0; i < products.length; i++) {
+				if (products[i].date === line[0]) {
+					product = products[i];
+					break;
+				}
+			}
 
 	    product.base.push(line[1]);
 	    product.comparison.push(line[2]);
 
 	    if (!product.date) {
-		product.date = line[0];
-		product.viewer = makeViewerLink(product.date, bbox);
-		products.push(product);
-	    }
+				product.date = line[0];
+				product.viewer = makeViewerLink(product.date, bbox);
+				products.push(product);
+			}
 	})
 
 	return products.reverse();
-    }
+	}
 
     function makeViewerLink(date, bbox) {
 	date = date.replace(/\-/g, "");
@@ -61,10 +62,10 @@
     function buildTableHeader() {
 	var header = $('<thead></thead>');
 	var headerRow = $('<tr></tr>');
-	headerRow.append($('<th>Date</th>'));
-	headerRow.append($('<th>More Data</th>'));
-	headerRow.append($('<th>Base Scene(s)</th>'));
-	headerRow.append($('<th>Comparison</th>'));
+	headerRow.append($('<th>Date (click to see data)</th>'));
+	headerRow.append($('<th>More Context</th>'));
+	headerRow.append($('<th>Initial Scene(s)</th>'));
+	headerRow.append($('<th>End Scene(s)</th>'));
 	header.append(headerRow);
 
 	return header;
@@ -80,9 +81,9 @@
     }
 
     function buildBodyRow(product) {
-	var row = $('<tr></tr>');
-	row.append($('<td><a class="date-loader">' + product.date + '</a></td>'));
-	row.append($('<td><a href="' + product.viewer + '" target="_blank">Display in viewer</a></td>'));
+	var row = $('<tr style="cursor:pointer;"></tr>');
+	row.append($('<td><span class="date-loader" data-date="' + product.date + '">' + product.date + '</span></td>'));
+	row.append($('<td><a href="' + product.viewer + '" style="text-decoration: underline;" target="_blank">Explore in Forest Change Viewer</a></td>'));
 	row.append($('<td>' + product.base.join('<br>') + '</td>'));
 	row.append($('<td>' + product.comparison.join('<br>') + '</td>'));
 	return row;
@@ -93,13 +94,19 @@
     }
 
     function loadLayer(event) {
-	event.preventDefault();
-	var date = $(this).text();
-	var map = $('.openlayers-map').data('openlayers');
+	$(this).siblings(".success").removeClass("success");
+	$(this).addClass("success");
+	var date = $(this).find("span.date-loader").data('date');
+	var olMap = $('.openlayers-map');
+	var map = olMap.data('openlayers').openlayers;
+	var currentLayer = olMap.data('layer');
+	if (currentLayer) {
+	    map.removeLayer(currentLayer);
+	}
+	
 	var layer = $(this).data('layer') ? $(this).data('layer') : createLayer(date, $(this));
-	console.log(map)
-
-	map.openlayers.addLayer(layer);
+	map.addLayer(layer);
+	olMap.data('layer', layer);
     }
 
     function createLayer(date, elem) {
