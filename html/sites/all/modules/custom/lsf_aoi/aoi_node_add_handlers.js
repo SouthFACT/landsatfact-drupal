@@ -263,6 +263,7 @@
     function insertAlertPopup (acres) {
 	var popup = createAlertPopup(acres);
 	$(".group-aoi-location .fieldset-wrapper").prepend(popup);
+	$(".group-aoi-location .panel-body").prepend(popup);
     }
 
     function createAlertPopup (acres) {

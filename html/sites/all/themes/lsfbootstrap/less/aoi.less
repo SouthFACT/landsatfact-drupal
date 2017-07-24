@@ -111,7 +111,7 @@
 .aoi-button {
     display: inline-block;
     max-width: 100%;
-    font-size: 20px;
+    font-size: 15px;
     background: #885331;
     padding: 8px 15px;
     margin-bottom: 10px;
@@ -188,11 +188,73 @@
     }
 }
 
+.header-tab-wrapper {
+    font-size: 18px;
+    height: 30px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    padding-left: 15px;
+    background-image: repeating-linear-gradient(180deg, transparent, transparent 27px, #3e441e 28px);
+}
+
+.header-tab {
+    padding: 10px 15px 0;
+    padding-bottom: 0;
+    margin-top: -30px;
+    margin-right: 15px;
+    display: inline-block;
+
+    &-active {
+	font-weight: bold;
+    }
+
+    &-active, &:hover, &:focus {
+	border-bottom: 3px solid #3e441e;
+	text-decoration: none;
+	color: #3e441e;
+    }
+}
+
 /**
  * AOI add page.
  */
 .page-node-add-aoi {
-    .field-name-body, .field-name-field-aoi-area-acres, .field-name-field-aoi-id, .field-name-field-aoi-subscribe-button {
+    .field-name-body, .field-name-field-aoi-area-acres, .field-name-field-aoi-id, .field-name-field-aoi-subscribe-button, label[for=edit-field-area-type-und] {
 	display: none;
+    }
+
+    #edit-field-area-type {
+	height: 28px;
+	background-image: repeating-linear-gradient(180deg, transparent, transparent 27px, #3e441e 28px);
+	padding-left: 10px;
+
+	.radio {
+	    width: auto;
+	    font-size: 16px;
+
+	    label {
+		display: inline;
+		background-color: inherit;
+		color: #3e441e;
+		font-weight: normal;
+		font-size: 14px;
+		padding-bottom: 5px;
+		padding-left: 8px;
+		padding-right: 8px;
+		margin-right: 10px;
+		margin-top: -33px;
+		border-radius: 0;
+
+		&:hover {
+		    border-bottom: 3px solid #3e441e;
+		}
+	    }
+
+	    input:checked + label {
+		font-weight: bold;
+		background-color: inherit;
+		border-bottom: 3px solid #3e441e;
+	    }
+	}
     }
 }
