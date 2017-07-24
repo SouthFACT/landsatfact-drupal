@@ -3,6 +3,21 @@
 @normal:  ~"screen and (min-width: @{screen-md-min})";
 @wide:    ~"screen and (min-width: @{screen-lg-min})";
 
+
+// Openlayers
+.olControlLayerSwitcher {
+  font-size: small !important;
+}
+.olControlLayerSwitcher .maximizeDiv,
+.olControlLayerSwitcher .minimizeDiv {
+  width: 30px !important;
+  height: 30px !important;
+}
+.olControlLayerSwitcher img {
+  height: inherit !important;
+}
+
+
 // Drop shadows.
 .box-shadow(@shadow) {
   -webkit-box-shadow: @shadow;
