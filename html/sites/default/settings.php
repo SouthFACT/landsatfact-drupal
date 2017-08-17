@@ -1,5 +1,7 @@
 <?php
 
+$config_info = parse_ini_file(DRUPAL_ROOT . '/../lsf_config.ini', true);
+
 /**
  * @file
  * Drupal site-specific configuration file.
@@ -224,6 +226,18 @@ $databases = array (
       'prefix' => '',
     ),
   ),
+  'lsf' =>
+  array(
+    'default' =>
+    array(
+      'database' => $config_info['pgsql_connection']['database'],
+      'username' => $config_info['pgsql_connection']['username'],
+      'password' => $config_info['pgsql_connection']['password'],
+      'host' => $config_info['pgsql_connection']['host'],
+      'port' => $config_info['pgsql_connection']['port'],
+      'driver' => $config_info['pgsql_connection']['driver'],
+    ),
+  ),
 );
 
 /**
@@ -278,7 +292,7 @@ $drupal_hash_salt = '6gE2ZAMzztPLrgE4f8O9WFDnUsmPvk6wgvNnr7v8UuU';
  * It is not allowed to have a trailing slash; Drupal will add it
  * for you.
  */
-# $base_url = 'http://www.example.com';  // NO trailing slash!
+$base_url = $config_info['drupal']['base_url'];  // NO trailing slash!
 
 /**
  * PHP settings:

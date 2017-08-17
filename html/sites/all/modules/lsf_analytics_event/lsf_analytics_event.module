@@ -403,6 +403,16 @@ function _lsf_analytics_event_set_selectors_array() {
    ),
    array(
      'event' => 'click',
+     'selector' => '.aoi-add-view.aoi-button',
+     'category' => 'AOI Alerts',
+     'action' => 'Add',
+     'label' => 'Create AOI',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+
+   array(
+     'event' => 'click',
      'selector' => '.view-user-aoi-listing .views-field-title a',
      'category' => 'AOI Alerts',
      'action' => 'view aoi - user',
@@ -410,6 +420,16 @@ function _lsf_analytics_event_set_selectors_array() {
      'value' => 0,
      'noninteraction' => FALSE,
    ),
+   array(
+     'event' => 'click',
+     'selector' => '.view-user-aoi-listing a.header-tab[href="/aoi"]',
+     'category' => 'AOI Alerts',
+     'action' => 'view aoi - user',
+     'label' => '!href',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+
    array(
      'event' => 'click',
      'selector' => '.view-public-aoi-listing .views-field-title a',
@@ -421,6 +441,16 @@ function _lsf_analytics_event_set_selectors_array() {
    ),
    array(
      'event' => 'click',
+     'selector' => '.view-user-aoi-listing a.header-tab[href="/aoi-all"',
+     'category' => 'AOI Alerts',
+     'action' => 'view aoi - all',
+     'label' => '!href',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+
+   array(
+     'event' => 'click',
      'selector' => '.view-aoi-notification-table .views-field-field-date-detected a',
      'category' => 'AOI Alerts',
      'action' => 'view aoi change event',
@@ -428,6 +458,25 @@ function _lsf_analytics_event_set_selectors_array() {
      'value' => 0,
      'noninteraction' => FALSE,
    ),
+   array(
+     'event' => 'click',
+     'selector' => '.view-aoi-notification-table .views-field-field-go-to-aoi-event-page-btn a.aoi-event-button',
+     'category' => 'AOI Alerts',
+     'action' => 'view aoi change event',
+     'label' => '!href',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+   array(
+     'event' => 'click',
+     'selector' => '.view-aoi-notification-table .views-field-field-preview-button',
+     'category' => 'AOI Alerts',
+     'action' => 'preview aoi map',
+     'label' => '!href',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),  
+ 
    array(
      'event' => 'click',
      'selector' => '.node-aoi .field-name-title .field-item a',
@@ -474,6 +523,25 @@ function _lsf_analytics_event_set_selectors_array() {
      'value' => 0,
      'noninteraction' => FALSE,
    ),
+   array(
+     'event' => 'change',
+     'selector' => '#edit-field-receive-email-notifcations-und',
+     'category' => 'AOI Alerts',
+     'action' => 'Email Notification Toggle',
+     'label' => '!checkbox',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+   array(
+     'event' => 'change',
+     'selector' => '#edit-field-generate-zonal-stats-und',
+     'category' => 'AOI Alerts',
+     'action' => 'Generate Zonal Stats Toggle',
+     'label' => '!checkbox',
+     'value' => 0,
+     'noninteraction' => FALSE,
+   ),
+
     array(
       'event' => 'click',
       'selector' => '.node-aoi-form .field-name-field-area-type .form-type-radio',
@@ -482,6 +550,15 @@ function _lsf_analytics_event_set_selectors_array() {
       'label' => '!text',
       'value' => 0,
       'noninteraction' => FALSE,
+   ),
+   array(
+     'event' => 'click',
+     'selector' => '.aoi-browse-view-from-node',
+     'category' => 'AOI Alerts',
+     'action' => 'click',
+     'label' => 'View My AOIS from node',
+     'value' => 0,
+     'noninteraction' => FALSE,
    )
 
 
