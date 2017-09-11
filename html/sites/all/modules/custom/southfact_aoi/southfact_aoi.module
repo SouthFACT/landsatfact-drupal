@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the SouthFACT AOI feature.
+ */
+
+include_once 'southfact_aoi.features.inc';
